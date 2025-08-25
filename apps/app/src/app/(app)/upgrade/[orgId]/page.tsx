@@ -41,7 +41,7 @@ export default async function UpgradePage({ params }: PageProps) {
   const hasAccess = member.organization.hasAccess;
 
   // If user has access to org but hasn't completed onboarding, redirect to onboarding
-  if (hasAccess && !member.organization.onboardingCompleted) {
+  if (!member.organization.onboardingCompleted) {
     redirect(`/onboarding/${orgId}`);
   }
 
