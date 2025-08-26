@@ -8,7 +8,7 @@ import { OrganizationSetupForm } from '../components/OrganizationSetupForm';
 import { getSetupSession } from '../lib/setup-session';
 
 export const metadata: Metadata = {
-  title: 'Setup Your Organization | Comp AI',
+  title: 'Setup Your Organization | Passt',
 };
 
 interface SetupPageProps {

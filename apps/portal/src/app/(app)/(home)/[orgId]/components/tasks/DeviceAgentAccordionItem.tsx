@@ -243,12 +243,12 @@ export function DeviceAgentAccordionItem({
             {/* About Passt Device Monitor */}
             <AccordionItem value="about" className="border rounded-xs">
               <AccordionTrigger className="px-4 hover:no-underline">
-                <span className="text-base">About Comp AI Device Monitor</span>
+                <span className="text-base">About Passt Device Monitor</span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
                 <div className="text-muted-foreground space-y-2 text-sm">
                   <p>
-                    Comp AI Device Monitor is a lightweight agent that helps ensure your device
+                    Passt Device Monitor is a lightweight agent that helps ensure your device
                     meets security compliance requirements.
                   </p>
                   <p>
@@ -256,7 +256,7 @@ export function DeviceAgentAccordionItem({
                     help maintain a secure work environment.
                   </p>
                   <p>
-                    <strong>Security powered by Comp AI:</strong> Your organization uses Comp AI to
+                    <strong>Security powered by Passt:</strong> Your organization uses Passt to
                     maintain security and compliance standards.
                   </p>
                   <p className="text-xs">If you have questions, contact your IT administrator.</p>
