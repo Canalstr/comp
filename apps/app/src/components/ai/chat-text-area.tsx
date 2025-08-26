@@ -23,7 +23,7 @@ export const ChatTextarea = ({ input, handleInputChange, isLoading }: InputProps
         className="mb-2 h-12 min-h-12 resize-none border-none pt-3"
         value={input}
         autoFocus
-        placeholder={'Ask Comp AI something...'}
+        placeholder={'Ask Passt something...'}
         onChange={handleInputChange}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
@@ -59,7 +59,7 @@ export const ChatTextarea = ({ input, handleInputChange, isLoading }: InputProps
                   onClick={() => handleOpenUrl('https://x.com/compai')}
                 >
                   <Icons.X className="h-[16px] w-[16px]" />
-                  <span>Follow Comp AI</span>
+                  <span>Follow Passt</span>
                 </button>
               </li>
               <li>

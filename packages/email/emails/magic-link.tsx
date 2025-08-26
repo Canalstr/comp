@@ -39,7 +39,7 @@ export const MagicLinkEmail = ({ email, url, inviteCode }: Props) => {
             fontStyle="normal"
           />
         </head>
-        <Preview>Login Link for Comp AI</Preview>
+        <Preview>Login Link for Passt</Preview>
 
         <Body className="mx-auto my-auto bg-[#fff] font-sans">
           <Container
@@ -48,11 +48,11 @@ export const MagicLinkEmail = ({ email, url, inviteCode }: Props) => {
           >
             <Logo />
             <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal text-[#121212]">
-              Your login link for Comp AI
+              Your login link for Passt
             </Heading>
 
             <Text className="text-[14px] leading-[24px] text-[#121212]">
-              Your login link for Comp AI
+              Your login link for Passt
             </Text>
             <Section className="mt-[32px] mb-[42px] text-center">
               <Button

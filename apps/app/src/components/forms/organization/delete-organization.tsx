@@ -50,7 +50,7 @@ export function DeleteOrganization({ organizationId }: { organizationId: string 
         <CardDescription>
           <div className="max-w-[600px]">
             {
-              'Permanently remove your organization and all of its contents from the Comp AI platform. This action is not reversible - please continue with caution.'
+              'Permanently remove your organization and all of its contents from the Passt platform. This action is not reversible - please continue with caution.'
             }
           </div>
         </CardDescription>

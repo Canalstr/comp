@@ -522,7 +522,7 @@ export function IntegrationsCard({
           <div className="border-border bg-muted/30 mt-auto border-t p-6">
             <div className="flex items-center justify-between">
               <p className="text-muted-foreground text-[10px]">
-                All integrations on the Comp AI store are open-source and peer-reviewed.
+                All integrations on the Passt store are open-source and peer-reviewed.
               </p>
 
               <a

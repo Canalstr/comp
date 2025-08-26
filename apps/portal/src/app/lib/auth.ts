@@ -57,7 +57,7 @@ export const auth = betterAuth({
       async sendVerificationOTP({ email, otp }) {
         await sendEmail({
           to: email,
-          subject: 'One-Time Password for Comp AI',
+          subject: 'One-Time Password for Passt',
           react: OTPVerificationEmail({ email, otp }),
         });
       },

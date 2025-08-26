@@ -1,11 +1,11 @@
 ---
 title: 'Azure Integration'
-description: 'Connect Azure to Comp AI for cloud security testing'
+description: 'Connect Azure to Passt for cloud security testing'
 ---
 
 # Azure Integration
 
-The Azure integration enables you to connect your Microsoft Azure cloud environment to Comp AI for comprehensive security testing, compliance monitoring, and risk assessment using Microsoft Defender for Cloud
+The Azure integration enables you to connect your Microsoft Azure cloud environment to Passt for comprehensive security testing, compliance monitoring, and risk assessment using Microsoft Defender for Cloud
 
 ## Setup Process
 
@@ -14,7 +14,7 @@ The Azure integration enables you to connect your Microsoft Azure cloud environm
 Before setting up the integration, ensure you have:
 
 1. Azure subscription with Owner or Contributor access
-2. Admin access to your Comp AI workspace
+2. Admin access to your Passt workspace
 3. Permissions to register applications in Azure AD
 
 ### Configuration Steps
@@ -58,8 +58,8 @@ Before setting up the integration, ensure you have:
    - Assign access to: **User, group, or service principal**
    - Select your registered application
 
-7. **Connect Azure to Comp AI**
-   - Go to **Settings > Integrations** in your Comp AI dashboard
+7. **Connect Azure to Passt**
+   - Go to **Settings > Integrations** in your Passt dashboard
    - Click **Connect** next to the Azure integration card
    - Paste the following values:
      - **Client ID**
@@ -99,7 +99,7 @@ The integration checks compliance against:
 
 ### Access Control
 
-Comp AI requires read-only access to your Azure environment. The integration uses Azure's built-in Reader role or custom roles with specific permissions that follow the principle of least privilege.
+Passt requires read-only access to your Azure environment. The integration uses Azure's built-in Reader role or custom roles with specific permissions that follow the principle of least privilege.
 
 ### Permissions
 

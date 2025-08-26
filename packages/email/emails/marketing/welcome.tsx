@@ -34,7 +34,7 @@ export const WelcomeEmail = ({ name }: Props) => {
           />
         </head>
 
-        <Preview>Get started with Comp AI</Preview>
+        <Preview>Get started with Passt</Preview>
 
         <Body className="mx-auto my-auto bg-[#fff] font-sans">
           <Container
@@ -43,7 +43,7 @@ export const WelcomeEmail = ({ name }: Props) => {
           >
             <Logo />
             <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal text-[#121212]">
-              Welcome to Comp AI!
+              Welcome to Passt!
             </Heading>
 
             <Footer />

@@ -19,10 +19,10 @@ export const revalidate = 0;
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://app.trycomp.ai'),
-  title: 'Comp AI | Automate SOC 2, ISO 27001 and GDPR compliance with AI.',
+  title: 'Passt | Automate SOC 2, ISO 27001 and GDPR compliance with AI.',
   description: 'Automate SOC 2, ISO 27001 and GDPR compliance with AI.',
   twitter: {
-    title: 'Comp AI | Automate SOC 2, ISO 27001 and GDPR compliance with AI.',
+    title: 'Passt | Automate SOC 2, ISO 27001 and GDPR compliance with AI.',
     description: 'Automate SOC 2, ISO 27001 and GDPR compliance with AI.',
     images: [
       {
@@ -38,10 +38,10 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'Comp AI | Automate SOC 2, ISO 27001 and GDPR compliance with AI.',
+    title: 'Passt | Automate SOC 2, ISO 27001 and GDPR compliance with AI.',
     description: 'Automate SOC 2, ISO 27001 and GDPR compliance with AI.',
     url: 'https://app.trycomp.ai',
-    siteName: 'Comp AI',
+    siteName: 'Passt',
     images: [
       {
         url: 'https://cdn.trycomp.ai/opengraph-image.jpg',

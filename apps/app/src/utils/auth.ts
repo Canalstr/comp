@@ -170,7 +170,7 @@ export const auth = betterAuth({
         const urlWithInviteCode = `${url}`;
         await sendEmail({
           to: email,
-          subject: 'Login to Comp AI',
+          subject: 'Login to Passt',
           react: MagicLinkEmail({
             email,
             url: urlWithInviteCode,
@@ -184,7 +184,7 @@ export const auth = betterAuth({
       async sendVerificationOTP({ email, otp }) {
         await sendEmail({
           to: email,
-          subject: 'One-Time Password for Comp AI',
+          subject: 'One-Time Password for Passt',
           react: OTPVerificationEmail({ email, otp }),
         });
       },

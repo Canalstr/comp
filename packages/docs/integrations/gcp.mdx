@@ -1,11 +1,11 @@
 ---
 title: 'GCP Integration'
-description: 'Connect Google Cloud Platform to Comp AI for cloud security testing'
+description: 'Connect Google Cloud Platform to Passt for cloud security testing'
 ---
 
 # Google Cloud Platform Integration
 
-The Google Cloud Platform (GCP) integration allows you to connect your GCP projects to Comp AI for automated compliance monitoring, and risk assessment.
+The Google Cloud Platform (GCP) integration allows you to connect your GCP projects to Passt for automated compliance monitoring, and risk assessment.
 
 ## Setup Process
 
@@ -14,12 +14,12 @@ The Google Cloud Platform (GCP) integration allows you to connect your GCP proje
 Before setting up the integration, ensure you have:
 
 1. GCP project with Owner or Editor access
-2. Admin access to your Comp AI workspace
+2. Admin access to your Passt workspace
 3. Permissions to create service accounts
 
 ### Configuration Steps
 
-1. Navigate to **Settings > Integrations** in your Comp AI dashboard
+1. Navigate to **Settings > Integrations** in your Passt dashboard
 2. Click on **Connect** next to the GCP integration card
 3. Link Service Account
    - Go to the [GCP Console → IAM & Admin → Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts)
@@ -36,7 +36,7 @@ Before setting up the integration, ensure you have:
      - **Security Command Center API**
      - **Cloud Resource Manager API**
    - Open the downloaded JSON file, and copy its entire contents
-   - Paste it into the **Service Account Key** field in the Comp AI connection form
+   - Paste it into the **Service Account Key** field in the Passt connection form
 4. Click **Save and Connect**
 
 ## Capabilities
@@ -70,7 +70,7 @@ The integration checks compliance against:
 
 ### Access Control
 
-Comp AI requires read-only access to your GCP environment. The integration uses a service account with specific IAM roles that follow the principle of least privilege.
+Passt requires read-only access to your GCP environment. The integration uses a service account with specific IAM roles that follow the principle of least privilege.
 
 ### Permissions
 

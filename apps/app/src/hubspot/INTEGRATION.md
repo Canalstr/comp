@@ -1,6 +1,6 @@
 # HubSpot Integration for User Signup & Company Creation
 
-This document explains how HubSpot is integrated into the Comp AI application for tracking user signups and company creation.
+This document explains how HubSpot is integrated into the Passt application for tracking user signups and company creation.
 
 ## Overview
 
@@ -80,7 +80,7 @@ The integration uses these HubSpot properties:
 - `domain` - Company domain (standard)
 - `numberofemployees` - Employee count (standard)
 - `compliance_frameworks` - Comma-separated list of framework names in lowercase with no spaces (e.g., "soc2,iso27001,gdpr") (custom)
-- `org_id` - Comp AI organization ID (custom)
+- `org_id` - Passt organization ID (custom)
 
 ### Contact Properties
 

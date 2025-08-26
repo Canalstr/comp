@@ -48,7 +48,7 @@ export const WaitlistEmail = ({ email }: Props) => {
           />
         </Head>
 
-        <Preview>Confirm your email to join the Comp AI waitlist</Preview>
+        <Preview>Confirm your email to join the Passt waitlist</Preview>
 
         <Body className="mx-auto my-auto bg-[#fff] font-sans">
           <Container
@@ -61,7 +61,7 @@ export const WaitlistEmail = ({ email }: Props) => {
             </Heading>
 
             <Text className="text-[14px] leading-[24px] text-[#121212]">
-              To claim your spot on the Comp AI waitlist, please confirm your email.
+              To claim your spot on the Passt waitlist, please confirm your email.
             </Text>
             <Section className="mt-[32px] mb-[42px] text-center">
               <Button
