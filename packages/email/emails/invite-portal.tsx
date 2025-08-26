@@ -57,7 +57,7 @@ export const InvitePortalEmail = ({ email, inviteLink, organizationName }: Props
           >
             <Logo />
             <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal text-[#121212]">
-              You've been invited to the Comp AI Portal
+              You've been invited to the Passt Portal
             </Heading>
 
             <Text className="text-[14px] leading-[24px] text-[#121212]">
