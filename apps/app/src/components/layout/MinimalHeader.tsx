@@ -42,7 +42,7 @@ export function MinimalHeader({
       <div className="flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2">
           <Icons.Logo className="h-6 w-6" />
-          <span className="hidden sm:inline text-lg font-semibold">Comp AI</span>
+          <span className="hidden sm:inline text-lg font-semibold">Passt</span>
         </Link>
         {variant === 'upgrade' || variant === 'onboarding' ? (
           <div className="w-auto">

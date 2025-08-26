@@ -7,7 +7,7 @@ export const sendWaitlistEmail = async (params: { email: string }) => {
   try {
     const sent = await sendEmail({
       to: email,
-      subject: 'Welcome to the Comp AI waitlist!',
+      subject: 'Welcome to the Passt waitlist!',
       react: WaitlistEmail({ email }),
     });
 

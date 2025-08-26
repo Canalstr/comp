@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Login | Comp AI',
+  title: 'Login | Passt',
 };
 
 export default async function Page() {
@@ -23,7 +23,7 @@ export default async function Page() {
             <div className="from-primary inline-block bg-clip-text pb-4">
               <div className="flex flex-row items-center gap-2">
                 <Link href="/" className="flex flex-row items-center gap-2">
-                  <h1 className="font-mono text-xl font-semibold">Comp AI</h1>
+                  <h1 className="font-mono text-xl font-semibold">Passt</h1>
                 </Link>
               </div>
               <h2 className="mt-4 text-lg font-medium">Employee Portal</h2>
@@ -38,7 +38,7 @@ export default async function Page() {
           </div>
 
           <div className="from-primary/10 via-primary/5 to-primary/5 mt-8 rounded-sm bg-gradient-to-r p-4">
-            <h3 className="text-sm font-medium">Comp AI - OSS Compliance Platform</h3>
+            <h3 className="text-sm font-medium">Passt - OSS Compliance Platform</h3>
             <p className="text-muted-foreground mt-1 text-xs">
               Get SOC 2, ISO 27001, and GDPR compliant in weeks, not months. Open source, instant
               sign up, free trial.

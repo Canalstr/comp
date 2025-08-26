@@ -57,7 +57,7 @@ export const EmployeeTasksList = ({
       content: <PoliciesAccordionItem policies={policies} member={member} />,
     },
     {
-      title: 'Download and install Comp AI Device Agent',
+      title: 'Download and install Passt Device Agent',
       content: (
         <DeviceAgentAccordionItem member={member} host={host} fleetPolicies={fleetPolicies} />
       ),

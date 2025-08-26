@@ -16,7 +16,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
-  title: 'Login | Comp AI',
+  title: 'Login | Passt',
 };
 
 export default async function Page({
@@ -49,7 +49,7 @@ export default async function Page({
           <CardHeader className="text-center space-y-3 pt-10">
             <Icons.Logo className="h-10 w-10 mx-auto" />
             <CardTitle className="text-2xl tracking-tight text-card-foreground">
-              Get Started with Comp AI
+              Get Started with Passt
             </CardTitle>
             <CardDescription className="text-base text-muted-foreground px-4">
               {`Automate SOC 2, ISO 27001 and GDPR compliance with AI.`}

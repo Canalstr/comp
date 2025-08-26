@@ -102,7 +102,7 @@ export function DeviceAgentAccordionItem({
             <Circle className="text-muted-foreground h-5 w-5" />
           )}
           <span className={cn('text-base', isCompleted && 'text-muted-foreground line-through')}>
-            Download and install Comp AI Device Agent
+            Download and install Passt Device Agent
           </span>
           {hasInstalledAgent && !allPoliciesPass && (
             <span className="text-amber-600 dark:text-amber-400 text-xs ml-auto">
@@ -114,7 +114,7 @@ export function DeviceAgentAccordionItem({
       <AccordionContent className="px-4 pb-4">
         <div className="space-y-4">
           <p className="text-sm">
-            Installing Comp AI Device Agent helps you and your security administrator keep your
+            Installing Passt Device Agent helps you and your security administrator keep your
             device protected against security threats.
           </p>
 
@@ -144,7 +144,7 @@ export function DeviceAgentAccordionItem({
                   </p>
                 </li>
                 <li>
-                  <strong>Run the Comp AI Device Agent installer</strong>
+                  <strong>Run the Passt Device Agent installer</strong>
                   <p className="mt-1">
                     Follow the installation wizard steps. When you reach the introduction screen (as
                     shown below), click "Continue" to proceed through the installation.
@@ -240,7 +240,7 @@ export function DeviceAgentAccordionItem({
           </Accordion>
 
           <Accordion type="single" collapsible>
-            {/* About Comp AI Device Monitor */}
+            {/* About Passt Device Monitor */}
             <AccordionItem value="about" className="border rounded-xs">
               <AccordionTrigger className="px-4 hover:no-underline">
                 <span className="text-base">About Comp AI Device Monitor</span>

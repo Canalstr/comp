@@ -30,8 +30,8 @@ export const sendEmail = async ({
       from: marketing
         ? 'Lewis Carhart <lewis@mail.trycomp.ai>'
         : system
-          ? 'Comp AI <mail@mail.trycomp.ai>'
-          : 'Comp AI <mail@mail.trycomp.ai>',
+            ? 'Passt <mail@mail.trycomp.ai>'
+  : 'Passt <mail@mail.trycomp.ai>',
       to: test ? 'mail@mail.trycomp.ai' : to,
       cc,
       replyTo: marketing ? 'lewis@trycomp.ai' : undefined,

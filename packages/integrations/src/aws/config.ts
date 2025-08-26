@@ -33,7 +33,7 @@ const config: {
     'Connect with Amazon Web Services to show your cloud infrastructure is compliant.',
   guide_url: 'https://trycomp.ai/docs/integrations/aws',
   description:
-    'Comp AI can automatically collect evidence from your AWS account to show your cloud infrastructure is compliant with different compliance frameworks.',
+    'Passt can automatically collect evidence from your AWS account to show your cloud infrastructure is compliant with different compliance frameworks.',
   images: [],
   settings: [
     {

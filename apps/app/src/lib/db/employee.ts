@@ -88,7 +88,7 @@ async function inviteEmployeeToPortal({
 
   await sendEmail({
     to: email,
-    subject: `You've been invited to join ${organizationName || 'an organization'} on Comp AI`,
+    subject: `You've been invited to join ${organizationName || 'an organization'} on Passt`,
     react: InvitePortalEmail({
       email,
       organizationName,
