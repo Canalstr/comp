@@ -22,7 +22,7 @@ interface Props {
 }
 
 export const TaskReminderEmail = ({ email, name, dueDate, recordId }: Props) => {
-  const link = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.trycomp.ai'}${recordId}`;
+  const link = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://passt.dev'}${recordId}`;
 
   return (
     <Html>
