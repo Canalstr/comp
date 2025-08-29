@@ -2,14 +2,6 @@ import { Resend } from 'resend';
 
 export const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-// --- DEBUG LINE ADDED ---
-if (resend) {
-  console.log(`Resend initialized with API key ending in: ...${process.env.RESEND_API_KEY.slice(-4)}`);
-} else {
-  console.warn('RESEND_API_KEY is not set. Resend is not initialized.');
-}
-// ------------------------
-
 export const sendEmail = async ({
   to,
   subject,
@@ -30,8 +22,6 @@ export const sendEmail = async ({
   scheduledAt?: string;
 }) => {
   if (!resend) {
-    // This warning will now be more informative because of the log above
-    console.error('Attempted to send email, but Resend is not initialized.');
     throw new Error('Resend not initialized - missing API key');
   }
 
