@@ -27,7 +27,7 @@ export const sendEmail = async ({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Passt Dev <info@send.passt.dev>',
+      from: 'Passt Dev <info@passt.dev>',
       to: test ? 'info@passt.dev' : to,
       cc,
       replyTo: marketing ? 'info@passt.dev' : undefined,
