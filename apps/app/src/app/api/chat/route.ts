@@ -9,19 +9,27 @@ import { NextResponse } from 'next/server';
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
+  console.log('[CHAT] Request received');
+  
   if (!env.OPENAI_API_KEY) {
+    console.log('[CHAT] No API key provided');
     return NextResponse.json({ error: 'No API key provided.' }, { status: 500 });
   }
 
+  console.log('[CHAT] API key found, processing request');
   const { messages }: { messages: UIMessage[] } = await req.json();
+  console.log('[CHAT] Messages received:', messages.length);
 
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session?.session.activeOrganizationId) {
+    console.log('[CHAT] Unauthorized - no active organization');
     return new Response('Unauthorized', { status: 401 });
   }
+
+  console.log('[CHAT] Session valid, proceeding with AI request');
 
   const systemPrompt = `
     You're an expert in GRC, and a helpful assistant in Comp AI,
@@ -35,12 +43,19 @@ export async function POST(req: Request) {
     If you are unsure about the answer, say "I don't know" or "I don't know the answer to that question".
 `;
 
-  const result = streamText({
-    model: openai('gpt-5'),
-    system: systemPrompt,
-    messages: convertToModelMessages(messages),
-    tools,
-  });
+  try {
+    console.log('[CHAT] Calling OpenAI API...');
+    const result = streamText({
+      model: openai('gpt-5'),
+      system: systemPrompt,
+      messages: convertToModelMessages(messages),
+      tools,
+    });
 
-  return result.toUIMessageStreamResponse();
+    console.log('[CHAT] OpenAI API call successful, returning response');
+    return result.toUIMessageStreamResponse();
+  } catch (error) {
+    console.error('[CHAT] Error calling OpenAI API:', error);
+    return NextResponse.json({ error: 'Failed to generate response' }, { status: 500 });
+  }
 }
