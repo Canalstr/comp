@@ -40,8 +40,8 @@ export default async function Page() {
           <div className="from-primary/10 via-primary/5 to-primary/5 mt-8 rounded-sm bg-gradient-to-r p-4">
             <h3 className="text-sm font-medium">Passt - OSS Compliance Platform</h3>
             <p className="text-muted-foreground mt-1 text-xs">
-              Get SOC 2, ISO 27001, and GDPR compliant in weeks, not months. Open source, instant
-              sign up, free trial.
+              Passt makes SOC 2, ISO 27001, HIPAA and GDPR effortless. Eliminate compliance
+              busywork, win more deals and accelerate growth.
             </p>
             <Button variant="link" className="mt-2 p-0" asChild>
               <Link
@@ -50,7 +50,7 @@ export default async function Page() {
                 className="hover:underline hover:underline-offset-2"
               >
                 <span className="text-primary mt-2 inline-flex items-center gap-2 text-xs font-medium">
-                  Start Free Trial & Get Compliant
+                  Learn More
                   <ArrowRight className="h-3 w-3" />
                 </span>
               </Link>

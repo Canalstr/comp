@@ -40,6 +40,10 @@ RUN echo '{"name":"migrator","type":"module","dependencies":{"prisma":"^6.14.0",
 # Install ONLY Prisma dependencies
 RUN bun install
 
+# Ensure Prisma can find migrations relative to the published schema path
+# We copy the local migrations into the published package's dist directory
+RUN cp -R packages/db/prisma/migrations node_modules/@trycompai/db/dist/
+
 # Run migrations against the combined schema published by @trycompai/db
 RUN echo "Running migrations against @trycompai/db combined schema"
 CMD ["bunx", "prisma", "migrate", "deploy", "--schema=node_modules/@trycompai/db/dist/schema.prisma"]
@@ -57,6 +61,10 @@ COPY apps/app ./apps/app
 
 # Bring in node_modules for build and prisma prebuild
 COPY --from=deps /app/node_modules ./node_modules
+
+# Pre-combine schemas for app build
+RUN cd packages/db && node scripts/combine-schemas.js
+RUN cp packages/db/dist/schema.prisma apps/app/prisma/schema.prisma
 
 # Ensure Next build has required public env at build-time
 ARG NEXT_PUBLIC_BETTER_AUTH_URL
@@ -83,8 +91,8 @@ ENV NEXT_PUBLIC_BETTER_AUTH_URL=$NEXT_PUBLIC_BETTER_AUTH_URL \
     NEXT_OUTPUT_STANDALONE=true \
     NODE_OPTIONS=--max_old_space_size=6144
 
-# Build the app
-RUN cd apps/app && SKIP_ENV_VALIDATION=true bun run build
+# Build the app (schema already combined above)
+RUN cd apps/app && SKIP_ENV_VALIDATION=true bun run build:docker
 
 # =============================================================================
 # STAGE 4: App Production
@@ -116,6 +124,10 @@ COPY apps/portal ./apps/portal
 # Bring in node_modules for build and prisma prebuild
 COPY --from=deps /app/node_modules ./node_modules
 
+# Pre-combine schemas for portal build
+RUN cd packages/db && node scripts/combine-schemas.js
+RUN cp packages/db/dist/schema.prisma apps/portal/prisma/schema.prisma
+
 # Ensure Next build has required public env at build-time
 ARG NEXT_PUBLIC_BETTER_AUTH_URL
 ENV NEXT_PUBLIC_BETTER_AUTH_URL=$NEXT_PUBLIC_BETTER_AUTH_URL \
@@ -123,8 +135,8 @@ ENV NEXT_PUBLIC_BETTER_AUTH_URL=$NEXT_PUBLIC_BETTER_AUTH_URL \
     NEXT_OUTPUT_STANDALONE=true \
     NODE_OPTIONS=--max_old_space_size=6144
 
-# Build the portal
-RUN cd apps/portal && SKIP_ENV_VALIDATION=true bun run build
+# Build the portal (schema already combined above)
+RUN cd apps/portal && SKIP_ENV_VALIDATION=true bun run build:docker
 
 # =============================================================================
 # STAGE 6: Portal Production

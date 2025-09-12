@@ -1,6 +1,4 @@
 import { env } from '@/env.mjs';
-import { isHubSpotConfigured } from '@/hubspot/api-client';
-import { createContact, findContactByEmail } from '@/hubspot/contacts';
 import { MagicLinkEmail, OTPVerificationEmail } from '@comp/email';
 import { sendInviteMemberEmail } from '@comp/email/lib/invite-member';
 import { sendEmail } from '@comp/email/lib/resend';
@@ -46,7 +44,9 @@ export const auth = betterAuth({
     provider: 'postgresql',
   }),
   baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
-  trustedOrigins: ['http://localhost:3000', 'https://*.trycomp.ai', 'http://localhost:3002'],
+  trustedOrigins: process.env.AUTH_TRUSTED_ORIGINS
+    ? process.env.AUTH_TRUSTED_ORIGINS.split(',').map((o) => o.trim())
+    : ['http://localhost:3000', 'https://*.trycomp.ai', 'http://localhost:3002'],
   emailAndPassword: {
     enabled: true,
   },
@@ -58,29 +58,6 @@ export const auth = betterAuth({
     },
   },
   databaseHooks: {
-    user: {
-      create: {
-        after: async (user) => {
-          // Create HubSpot contact when new user signs up
-          if (isHubSpotConfigured()) {
-            try {
-              console.log('[HubSpot] Creating contact for new user:', user.email);
-
-              // Check if contact already exists
-              const existingContact = await findContactByEmail(user.email);
-
-              if (!existingContact.contactId) {
-                // Create new contact
-                await createContact(user.email);
-              }
-            } catch (error) {
-              console.error('[HubSpot] Error creating contact on signup:', error);
-              // Don't throw - we don't want to block signup if HubSpot fails
-            }
-          }
-        },
-      },
-    },
     session: {
       create: {
         before: async (session) => {
@@ -134,6 +111,7 @@ export const auth = betterAuth({
   secret: process.env.AUTH_SECRET!,
   plugins: [
     organization({
+      membershipLimit: 100000000000,
       async sendInvitationEmail(data) {
         const isLocalhost = process.env.NODE_ENV === 'development';
         const protocol = isLocalhost ? 'http' : 'https';

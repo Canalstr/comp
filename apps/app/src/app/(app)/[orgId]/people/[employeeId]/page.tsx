@@ -1,11 +1,12 @@
 import { auth } from '@/utils/auth';
 
+import PageWithBreadcrumb from '@/components/pages/PageWithBreadcrumb';
 import {
   type TrainingVideo,
   trainingVideos as trainingVideosData,
 } from '@/lib/data/training-videos';
 import { getFleetInstance } from '@/lib/fleet';
-import type { EmployeeTrainingVideoCompletion, Member } from '@db';
+import type { EmployeeTrainingVideoCompletion, Member, User } from '@db';
 import { db } from '@db';
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
@@ -15,9 +16,9 @@ import { Employee } from './components/Employee';
 export default async function EmployeeDetailsPage({
   params,
 }: {
-  params: Promise<{ employeeId: string }>;
+  params: Promise<{ employeeId: string; orgId: string }>;
 }) {
-  const { employeeId } = await params;
+  const { employeeId, orgId } = await params;
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -32,7 +33,8 @@ export default async function EmployeeDetailsPage({
     },
   });
 
-  const canEditMembers = ['owner', 'admin'].includes(currentUserMember?.role ?? '');
+  const canEditMembers =
+    currentUserMember?.role.includes('owner') || currentUserMember?.role.includes('admin') || false;
 
   if (!organizationId) {
     redirect('/');
@@ -50,14 +52,21 @@ export default async function EmployeeDetailsPage({
   const { fleetPolicies, device } = await getFleetPolicies(employee);
 
   return (
-    <Employee
-      employee={employee}
-      policies={policies}
-      trainingVideos={employeeTrainingVideos}
-      fleetPolicies={fleetPolicies}
-      host={device}
-      canEdit={canEditMembers}
-    />
+    <PageWithBreadcrumb
+      breadcrumbs={[
+        { label: 'People', href: `/${orgId}/people/all` },
+        { label: employee.user.name, current: true },
+      ]}
+    >
+      <Employee
+        employee={employee}
+        policies={policies}
+        trainingVideos={employeeTrainingVideos}
+        fleetPolicies={fleetPolicies}
+        host={device}
+        canEdit={canEditMembers}
+      />
+    </PageWithBreadcrumb>
   );
 }
 
@@ -81,6 +90,7 @@ const getEmployee = async (employeeId: string) => {
   const employee = await db.member.findFirst({
     where: {
       id: employeeId,
+      organizationId,
     },
     include: {
       user: true,
@@ -160,28 +170,37 @@ const getTrainingVideos = async (employeeId: string) => {
     );
 };
 
-const getFleetPolicies = async (member: Member) => {
-  const deviceLabelId = member.fleetDmLabelId;
+const getFleetPolicies = async (member: Member & { user: User }) => {
   const fleet = await getFleetInstance();
 
-  if (!deviceLabelId) {
+  // Only show device if the employee has their own specific fleetDmLabelId
+  if (!member.fleetDmLabelId) {
+    console.log(
+      `No individual fleetDmLabelId found for member: ${member.id}, member email: ${member.user?.email}. No device will be shown.`,
+    );
     return { fleetPolicies: [], device: null };
   }
 
   try {
-    const deviceResponse = await fleet.get(`/labels/${deviceLabelId}/hosts`);
-    const device = deviceResponse.data.hosts?.[0]; // There should only be one device per label.
+    const deviceResponse = await fleet.get(`/labels/${member.fleetDmLabelId}/hosts`);
+    const device = deviceResponse.data.hosts?.[0];
 
     if (!device) {
-      console.log(`No host found for device label id: ${deviceLabelId} - member: ${member.id}`);
+      console.log(
+        `No device found for fleetDmLabelId: ${member.fleetDmLabelId} for member: ${member.id}`,
+      );
       return { fleetPolicies: [], device: null };
     }
 
     const deviceWithPolicies = await fleet.get(`/hosts/${device.id}`);
-    const fleetPolicies = deviceWithPolicies.data.host.policies;
-    return { fleetPolicies, device };
+    const fleetPolicies = deviceWithPolicies.data.host.policies || [];
+
+    return { fleetPolicies, device: deviceWithPolicies.data.host };
   } catch (error) {
-    console.error(`Failed to get fleet policies for member: ${member.id}`, error);
+    console.error(
+      `Failed to get device using individual fleet label for member: ${member.id}`,
+      error,
+    );
     return { fleetPolicies: [], device: null };
   }
 };

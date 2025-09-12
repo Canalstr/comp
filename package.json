@@ -48,8 +48,7 @@
     "tsup": "^8.5.0",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3",
-    "use-debounce": "^10.0.4",
-    "zod": "^4.0.14"
+    "use-debounce": "^10.0.4"
   },
   "engines": {
     "node": ">=18"
@@ -61,6 +60,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
+    "check:env": "node scripts/check-unused-env.js",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo clean",
     "deploy:trigger-prod": "npx trigger.dev@4.0.0 deploy",
@@ -91,5 +91,8 @@
     "packages/tsconfig",
     "packages/ui",
     "packages/utils"
-  ]
+  ],
+  "dependencies": {
+    "zod": "^3.25.76"
+  }
 }

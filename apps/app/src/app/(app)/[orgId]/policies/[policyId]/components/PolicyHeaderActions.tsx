@@ -1,6 +1,7 @@
 'use client';
 
 import { regeneratePolicyAction } from '@/app/(app)/[orgId]/policies/[policyId]/actions/regenerate-policy';
+import { generatePolicyPDF } from '@/lib/pdf-generator';
 import { Button } from '@comp/ui/button';
 import {
   Dialog,
@@ -14,36 +15,71 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@comp/ui/dropdown-menu';
 import { Icons } from '@comp/ui/icons';
+import type { Policy, Member, User } from '@db';
+import type { JSONContent } from '@tiptap/react';
 import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { AuditLogWithRelations } from '../data';
 
-export function PolicyHeaderActions({ policyId }: { policyId: string }) {
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+export function PolicyHeaderActions({ 
+  policy,
+  logs
+}: { 
+  policy: (Policy & { approver: (Member & { user: User }) | null }) | null;
+  logs: AuditLogWithRelations[];
+}) {
+  const [isRegenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false);
   // Delete flows through query param to existing dialog in PolicyOverview
   const regenerate = useAction(regeneratePolicyAction, {
     onSuccess: () => toast.success('Regeneration triggered. This may take a moment.'),
     onError: () => toast.error('Failed to trigger policy regeneration'),
   });
 
+  const handleDownloadPDF = () => {
+    try {
+      if (!policy || !policy.content) {
+        toast.error('Policy content not available for download');
+        return;
+      }
+
+      // Convert policy content to JSONContent array if needed
+      let policyContent: JSONContent[];
+      if (Array.isArray(policy.content)) {
+        policyContent = policy.content as JSONContent[];
+      } else if (typeof policy.content === 'object' && policy.content !== null) {
+        policyContent = [policy.content as JSONContent];
+      } else {
+        toast.error('Invalid policy content format');
+        return;
+      }
+
+      // Generate and download the PDF
+      generatePolicyPDF(policyContent as any, logs, policy.name || 'Policy Document');
+    } catch (error) {
+      console.error('Error downloading policy PDF:', error);
+      toast.error('Failed to generate policy PDF');
+    }
+  };
+
+  if (!policy) return null;
+
+  const isPendingApproval = !!policy.approverId;
+
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="m-0 size-auto p-2"
-            aria-label="Policy actions"
-          >
+          <Button size="icon" variant="ghost" className="m-0 size-auto p-2">
             <Icons.Settings className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setIsConfirmOpen(true)}>
+          <DropdownMenuItem onClick={() => setRegenerateConfirmOpen(true)} disabled={isPendingApproval}>
             <Icons.AI className="mr-2 h-4 w-4" /> Regenerate policy
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -54,6 +90,12 @@ export function PolicyHeaderActions({ policyId }: { policyId: string }) {
             }}
           >
             <Icons.Edit className="mr-2 h-4 w-4" /> Edit policy
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => handleDownloadPDF()}
+          >
+            <Icons.Download className="mr-2 h-4 w-4" /> Download as PDF
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
@@ -77,8 +119,9 @@ export function PolicyHeaderActions({ policyId }: { policyId: string }) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={isConfirmOpen} onOpenChange={(open) => !open && setIsConfirmOpen(false)}>
-        <DialogContent className="sm:max-w-[420px]">
+      {/* Regenerate Confirmation Dialog */}
+      <Dialog open={isRegenerateConfirmOpen} onOpenChange={setRegenerateConfirmOpen}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Regenerate Policy</DialogTitle>
             <DialogDescription>
@@ -86,19 +129,14 @@ export function PolicyHeaderActions({ policyId }: { policyId: string }) {
               it for review. Continue?
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setIsConfirmOpen(false)}
-              disabled={regenerate.status === 'executing'}
-            >
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRegenerateConfirmOpen(false)}>
               Cancel
             </Button>
             <Button
               onClick={() => {
-                setIsConfirmOpen(false);
-                toast.info('Regenerating policy...');
-                regenerate.execute({ policyId });
+                regenerate.execute({ policyId: policy.id });
+                setRegenerateConfirmOpen(false);
               }}
               disabled={regenerate.status === 'executing'}
             >
@@ -107,8 +145,6 @@ export function PolicyHeaderActions({ policyId }: { policyId: string }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Delete confirmation handled by PolicyDeleteDialog via query param */}
     </>
   );
 }
