@@ -10,13 +10,15 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   console.log('[CHAT] Request received');
+  console.log('[CHAT] Environment check - OPENAI_API_KEY exists:', !!env.OPENAI_API_KEY);
+  console.log('[CHAT] Environment check - OPENAI_API_KEY length:', env.OPENAI_API_KEY?.length || 0);
+  console.log('[CHAT] Environment check - OPENAI_API_KEY starts with sk-:', env.OPENAI_API_KEY?.startsWith('sk-') || false);
   
   if (!env.OPENAI_API_KEY) {
-    console.log('[CHAT] No API key provided');
+    console.log('[CHAT] ERROR: No API key provided');
     return NextResponse.json({ error: 'No API key provided.' }, { status: 500 });
   }
 
-  console.log('[CHAT] API key found, processing request');
   const { messages }: { messages: UIMessage[] } = await req.json();
   console.log('[CHAT] Messages received:', messages.length);
 
