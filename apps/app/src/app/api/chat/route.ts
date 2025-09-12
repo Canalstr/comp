@@ -8,13 +8,18 @@ import { NextResponse } from 'next/server';
 
 export const maxDuration = 30;
 
+export async function GET() {
+  return NextResponse.json({ message: 'Chat API is working', timestamp: new Date().toISOString() });
+}
+
 export async function POST(req: Request) {
-  console.log('[CHAT] Request received');
-  console.log('[CHAT] Environment check - OPENAI_API_KEY exists:', !!env.OPENAI_API_KEY);
-  console.log('[CHAT] Environment check - OPENAI_API_KEY length:', env.OPENAI_API_KEY?.length || 0);
-  console.log('[CHAT] Environment check - OPENAI_API_KEY starts with sk-:', env.OPENAI_API_KEY?.startsWith('sk-') || false);
+  console.log('[CHAT] Request received - function is running');
   
-  if (!env.OPENAI_API_KEY) {
+  const openaiKey = process.env.OPENAI_API_KEY;
+  console.log('[CHAT] Direct env check - OPENAI_API_KEY exists:', !!openaiKey);
+  console.log('[CHAT] Direct env check - OPENAI_API_KEY length:', openaiKey?.length || 0);
+  
+  if (!openaiKey) {
     console.log('[CHAT] ERROR: No API key provided');
     return NextResponse.json({ error: 'No API key provided.' }, { status: 500 });
   }
@@ -48,7 +53,7 @@ export async function POST(req: Request) {
   try {
     console.log('[CHAT] Calling OpenAI API...');
     const result = streamText({
-      model: openai('gpt-3.5-turbo'),
+      model: openai('gpt-3.5-turbo', { apiKey: openaiKey }),
       system: systemPrompt,
       messages: convertToModelMessages(messages),
       tools,
