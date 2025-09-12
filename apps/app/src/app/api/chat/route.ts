@@ -46,7 +46,7 @@ export async function POST(req: Request) {
   try {
     console.log('[CHAT] Calling OpenAI API...');
     const result = streamText({
-      model: openai('gpt-5'),
+      model: openai('gpt-3.5-turbo'),
       system: systemPrompt,
       messages: convertToModelMessages(messages),
       tools,

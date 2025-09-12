@@ -226,7 +226,7 @@ export async function createVendorRiskComment(
       : 'No specific policies available - use standard security policy guidance.';
 
   const riskMitigationComment = await generateText({
-    model: openai('gpt-5-mini'),
+    model: openai('gpt-3.5-turbo'),
     system: VENDOR_RISK_ASSESSMENT_PROMPT,
     prompt: `Vendor: ${vendor.name} (${vendor.category}) - ${vendor.description}. Website: ${vendor.website}.
 
@@ -351,7 +351,7 @@ export async function createRiskMitigationComment(
       : 'No specific policies available - use standard security policy guidance.';
 
   const mitigation = await generateText({
-    model: openai('gpt-5-mini'),
+    model: openai('gpt-3.5-turbo'),
     system: RISK_MITIGATION_PROMPT,
     prompt: `Risk: ${risk.title} (${risk.category} / ${risk.department})\n\nDescription:\n${risk.description}\n\nTreatment Strategy:\n${risk.treatmentStrategy}: ${risk.treatmentStrategyDescription || 'N/A'}\n\nResidual Assessment: Likelihood ${risk.likelihood}, Impact ${risk.impact}\n\nAvailable Organization Policies:\n${policiesContext}\n\nWrite a pragmatic mitigation plan with concrete steps the team can implement in the next 30-90 days.`,
   });
