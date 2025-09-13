@@ -5,17 +5,33 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
 import { emailOTP, multiSession, organization } from 'better-auth/plugins';
 import { ac, admin, auditor, employee, owner } from './permissions';
+import { env } from '../../env.mjs';
+
+// Conditional social providers like in main app
+let socialProviders = {};
+
+if (env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET) {
+  socialProviders = {
+    ...socialProviders,
+    google: {
+      clientId: env.AUTH_GOOGLE_ID,
+      clientSecret: env.AUTH_GOOGLE_SECRET,
+    },
+  };
+}
 
 export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: 'postgresql',
   }),
+  // Dynamic baseURL - will be set per request
+  // baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
   advanced: {
     // This will enable us to fall back to DB for ID generation.
     // It's important so we can use custom IDs specified in Prisma Schema.
     generateId: false,
   },
-  trustedOrigins: ['http://localhost:3000', 'https://*.trycomp.ai'],
+  trustedOrigins: ['http://localhost:3000', 'https://*.trycomp.ai', 'https://portal.passt.dev'],
   secret: process.env.AUTH_SECRET!,
   plugins: [
     organization({
@@ -66,12 +82,7 @@ export const auth = betterAuth({
     nextCookies(),
     multiSession(),
   ],
-  socialProviders: {
-    google: {
-      clientId: process.env.AUTH_GOOGLE_ID!,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
-    },
-  },
+  socialProviders,
   user: {
     modelName: 'User',
   },
