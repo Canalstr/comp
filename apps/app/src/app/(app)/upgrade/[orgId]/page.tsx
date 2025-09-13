@@ -41,13 +41,18 @@ export default async function UpgradePage({ params }: PageProps) {
   const hasAccess = member.organization.hasAccess;
 
   // If user has access to org but hasn't completed onboarding, redirect to onboarding
-  if (!member.organization.onboardingCompleted) {
+  if (hasAccess && !member.organization.onboardingCompleted) {
     redirect(`/onboarding/${orgId}`);
   }
 
   // If user has access to org and has completed onboarding, redirect to org
-  if ( member.organization.onboardingCompleted) {
+  if (hasAccess && member.organization.onboardingCompleted) {
     redirect(`/${orgId}`);
+  }
+
+  // If no access, redirect to wait page
+  if (!hasAccess) {
+    redirect(`/wait-for-access/${orgId}`);
   }
 
   const frameworkInstances = await db.frameworkInstance.findMany({

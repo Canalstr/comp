@@ -52,7 +52,7 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
 
   // Check if they have a subscription
   if (!organization.hasAccess) {
-    redirect(`/upgrade/${orgId}`);
+    redirect(`/wait-for-access/${orgId}`);
   }
 
   // Convert context to initial data format

@@ -67,9 +67,9 @@ export default async function Layout({
     return redirect('/no-access');
   }
 
-  // If this org is not accessible on current plan, redirect to upgrade
+  // If this org is not accessible on current plan, redirect to wait page
   if (!organization.hasAccess) {
-    return redirect(`/upgrade/${organization.id}`);
+    return redirect(`/wait-for-access/${organization.id}`);
   }
 
   // If onboarding is required and user isn't already on onboarding, redirect
