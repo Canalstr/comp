@@ -3,6 +3,7 @@
 import { AutoRefresh } from './components/AutoRefresh';
 import { RefreshButton } from './components/RefreshButton';
 import { Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 
 interface ClientWaitPageProps {
   orgName: string;
@@ -70,9 +71,9 @@ export default function ClientWaitPage({ orgName }: ClientWaitPageProps) {
         <div className="text-center mt-8">
           <p className="text-xs text-gray-500">
             By continuing, you acknowledge that you have read and agree to the{' '}
-            <a href="/terms" className="text-gray-700 hover:underline">Terms and Conditions</a>
+            <Link href="/terms" className="text-gray-700 hover:underline">Terms and Conditions</Link>
             {' '}and{' '}
-            <a href="/privacy" className="text-gray-700 hover:underline">Privacy Policy</a>.
+            <Link href="/privacy" className="text-gray-700 hover:underline">Privacy Policy</Link>.
           </p>
         </div>
       </div>
