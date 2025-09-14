@@ -1,6 +1,12 @@
 'use client';
 
 import { integrations } from '@comp/integrations';
+
+// DEBUG: Check what we're actually getting from the package
+console.log('[integrations.tsx] from package', {
+  integrations: integrations.map(i => ({ id: i.id, guide_url: i.guide_url })),
+  resolve: typeof require !== 'undefined' ? require.resolve?.('@comp/integrations') : 'n/a',
+});
 import { Button } from '@comp/ui/button';
 import { Integration } from '@db';
 import { useRouter, useSearchParams } from 'next/navigation';
