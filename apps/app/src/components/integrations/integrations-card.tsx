@@ -166,9 +166,6 @@ export function IntegrationsCard({
     return `Runs in ${diffInHours} hour${diffInHours !== 1 ? 's' : ''} and ${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''}`;
   };
 
-  // DEBUG: Check what guide_url we're receiving
-  console.log('[integrations-card] props', { id, guide_url });
-
   return (
     <Card key={id} className="flex w-full flex-col overflow-hidden">
       <Sheet open={params.app === id} onOpenChange={() => setParams(null)}>
