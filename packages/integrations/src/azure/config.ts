@@ -31,7 +31,7 @@ const config: {
   active: true,
   logo: Logo,
   short_description: 'Connect with Microsoft Azure to show your cloud infrastructure is compliant.',
-  guide_url: 'https://trycomp.ai/docs/integrations/azure',
+  guide_url: 'https://passt.dev/integrations',
   description:
     'Passt can automatically collect evidence from your Microsoft Azure account to show your cloud infrastructure is compliant with different compliance frameworks.',
   images: [],
