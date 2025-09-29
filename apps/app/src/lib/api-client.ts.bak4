@@ -1,6 +1,7 @@
 'use client';
 
 import { env } from '@/env.mjs';
+import { jwtManager } from '@/utils/jwt-manager';
 
 interface ApiCallOptions extends Omit<RequestInit, 'headers'> {
   organizationId?: string;
@@ -15,7 +16,7 @@ export interface ApiResponse<T = unknown> {
 
 /**
  * API client for calling our internal NestJS API
- * Uses API key authentication with organization context
+ * Uses Better Auth Bearer tokens for authentication with organization context
  */
 export class ApiClient {
   private baseUrl: string;
@@ -26,7 +27,7 @@ export class ApiClient {
 
   /**
    * Make an authenticated API call
-   * Uses API key authentication + explicit org context
+   * Uses Bearer token authentication + explicit org context
    */
   async call<T = unknown>(endpoint: string, options: ApiCallOptions = {}): Promise<ApiResponse<T>> {
     const { organizationId, headers: customHeaders, ...fetchOptions } = options;
@@ -44,12 +45,18 @@ export class ApiClient {
 
     // Add API key for authentication
     if (typeof window !== 'undefined') {
-      const apiKey = env.COMP_API_KEY;
-      if (apiKey) {
-        headers['X-API-Key'] = apiKey;
-        console.log('🎯 Using API key for authentication');
-      } else {
-        console.log('⚠️ No API key available for API authentication');
+      try {
+        // Get a valid (non-stale) JWT token
+        const apiKey = env.COMP_API_KEY;
+
+        if (token) {
+          headers["X-API-Key"] = apiKey;
+          console.log('🎯 Using fresh JWT token for API authentication');
+        } else {
+          console.log('⚠️ No JWT token available for API authentication');
+        }
+      } catch (error) {
+        console.error('❌ Error getting JWT token for API call:', error);
       }
     }
 

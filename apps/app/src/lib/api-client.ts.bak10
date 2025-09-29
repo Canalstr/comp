@@ -1,64 +1,71 @@
 'use client';
 
-import { env } from '@/env.mjs';
+import { env 
+import { jwtManager 
 
 interface ApiCallOptions extends Omit<RequestInit, 'headers'> {
   organizationId?: string;
   headers?: Record<string, string>;
-}
+
 
 export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
   status: number;
-}
+
 
 /**
  * API client for calling our internal NestJS API
- * Uses API key authentication with organization context
+ * Uses Better Auth Bearer tokens for authentication with organization context
  */
 export class ApiClient {
   private baseUrl: string;
 
   constructor() {
     this.baseUrl = env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-  }
+  
 
   /**
    * Make an authenticated API call
-   * Uses API key authentication + explicit org context
+   * Uses Bearer token authentication + explicit org context
    */
-  async call<T = unknown>(endpoint: string, options: ApiCallOptions = {}): Promise<ApiResponse<T>> {
-    const { organizationId, headers: customHeaders, ...fetchOptions } = options;
+  async call<T = unknown>(endpoint: string, options: ApiCallOptions = {
+    const { organizationId, headers: customHeaders, ...fetchOptions 
 
     // Build headers
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...customHeaders,
-    };
+    
 
     // Add explicit organization context if provided
     if (organizationId) {
       headers['X-Organization-Id'] = organizationId;
-    }
+    
 
     // Add API key for authentication
     if (typeof window !== 'undefined') {
-      const apiKey = env.COMP_API_KEY;
-      if (apiKey) {
-        headers['X-API-Key'] = apiKey;
-        console.log('🎯 Using API key for authentication');
-      } else {
-        console.log('⚠️ No API key available for API authentication');
-      }
-    }
+      
+        // Get a valid (non-stale) JWT token
+        const apiKey = env.COMP_API_KEY;
 
-    try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        if (apiKey) {
+          headers["X-API-Key"] = apiKey;
+          console.log("🎯 Using API key for authentication");
+        
+          console.log('⚠️ No JWT token available for API authentication');
+        
+      
+        
+      
+    
+
+    
+      const response = await fetch(`${this.baseUrl
         credentials: 'include',
         ...fetchOptions,
         headers,
-      });
+      
 
       let data = null;
 
@@ -66,40 +73,40 @@ export class ApiClient {
       if (response.status === 204) {
         // 204 No Content - DELETE operations return empty body
         data = null;
-      } else {
+      
         // All other responses should have JSON content
         const text = await response.text();
         if (text) {
-          try {
+          
             data = JSON.parse(text);
-          } catch (parseError) {
+          
             // If JSON parsing fails but we have text, use it as error message
-            data = { message: text };
-          }
-        }
-      }
+            data = { message: text 
+          
+        
+      
 
       return {
         data: response.ok ? data : undefined,
         error: !response.ok
-          ? data?.message || `HTTP ${response.status}: ${response.statusText}`
+          ? data?.message || `HTTP ${response.status
           : undefined,
         status: response.status,
-      };
-    } catch (error) {
+      
+    
       return {
         error: error instanceof Error ? error.message : 'Network error',
         status: 0,
-      };
-    }
-  }
+      
+    
+  
 
   /**
    * GET request
    */
   async get<T = unknown>(endpoint: string, organizationId?: string): Promise<ApiResponse<T>> {
-    return this.call<T>(endpoint, { method: 'GET', organizationId });
-  }
+    return this.call<T>(endpoint, { method: 'GET', organizationId 
+  
 
   /**
    * POST request
@@ -113,8 +120,8 @@ export class ApiClient {
       method: 'POST',
       body: body ? JSON.stringify(body) : undefined,
       organizationId,
-    });
-  }
+    
+  
 
   /**
    * PUT request
@@ -128,16 +135,16 @@ export class ApiClient {
       method: 'PUT',
       body: body ? JSON.stringify(body) : undefined,
       organizationId,
-    });
-  }
+    
+  
 
   /**
    * DELETE request
    */
   async delete<T = unknown>(endpoint: string, organizationId?: string): Promise<ApiResponse<T>> {
-    return this.call<T>(endpoint, { method: 'DELETE', organizationId });
-  }
-}
+    return this.call<T>(endpoint, { method: 'DELETE', organizationId 
+  
+
 
 // Export singleton instance
 export const apiClient = new ApiClient();
@@ -155,4 +162,4 @@ export const api = {
 
   delete: <T = unknown>(endpoint: string, organizationId?: string) =>
     apiClient.delete<T>(endpoint, organizationId),
-};
+

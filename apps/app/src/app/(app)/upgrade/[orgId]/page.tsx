@@ -50,10 +50,8 @@ export default async function UpgradePage({ params }: PageProps) {
     redirect(`/${orgId}`);
   }
 
-  // If no access, redirect to wait page
-  if (!hasAccess) {
-    redirect(`/wait-for-access/${orgId}`);
-  }
+  // If no access, show the upgrade/payment page
+  // (Don't redirect to wait page - let them try to pay first)
 
   const frameworkInstances = await db.frameworkInstance.findMany({
     where: {
