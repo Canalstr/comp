@@ -2,8 +2,8 @@ import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
 
 export const env = createEnv({
-  COMP_API_KEY: z.string().optional(),
-  COMP_API_ORG_ID: z.string().optional(),  server: {
+  
+    server: {
     AUTH_GOOGLE_ID: z.string().optional(),
     AUTH_GOOGLE_SECRET: z.string().optional(),
     AUTH_GITHUB_ID: z.string().optional(),
@@ -39,7 +39,8 @@ export const env = createEnv({
   },
 
   client: {
-    NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
+    COMP_API_KEY: z.string().optional(),
+    COMP_API_ORG_ID: z.string().optional(),    NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
     NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
     NEXT_PUBLIC_IS_DUB_ENABLED: z.string().optional(),
     NEXT_PUBLIC_GTM_ID: z.string().optional(),
@@ -91,7 +92,8 @@ export const env = createEnv({
     LINKEDIN_CONVERSIONS_ACCESS_TOKEN: process.env.LINKEDIN_CONVERSIONS_ACCESS_TOKEN,
     NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL: process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-    NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+    COMP_API_KEY: process.env.COMP_API_KEY,
+    COMP_API_ORG_ID: process.env.COMP_API_ORG_ID,    NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
   },
 
   skipValidation: !!process.env.CI || !!process.env.SKIP_ENV_VALIDATION,
