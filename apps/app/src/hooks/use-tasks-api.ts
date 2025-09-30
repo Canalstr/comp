@@ -1,7 +1,8 @@
 'use client';
 
+import { uploadFile } from '@/actions/files/upload-file';
 import { useApiSWR, UseApiSWROptions } from '@/hooks/use-api-swr';
-import { useActiveOrganization } from '@/utils/auth-client';
+import { AttachmentEntityType } from '@db';
 import type { AttachmentType } from '@db';
 import { useCallback } from 'react';
 
@@ -78,46 +79,33 @@ export function useTaskAttachments(
 
 /**
  * Hook for task attachment actions (upload, download, delete)
+ * Uses Server Actions for direct S3 upload
  */
 export function useTaskAttachmentActions(taskId: string) {
-  const { data: activeOrg } = useActiveOrganization();
-
   const uploadAttachment = useCallback(
     (file: File): Promise<Attachment> => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = async () => {
           try {
-            const orgId = activeOrg?.id;
-            if (!orgId) {
-              reject(new Error('Missing organization ID'));
-              return;
-            }
-
             const base64String = reader.result as string;
             const base64Data = base64String.split(',')[1]; // Remove data:image/...;base64, prefix
 
-            // Call Next.js API route proxy (server-side API key injection)
-            const response = await fetch(`/api/attachments/${taskId}`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Organization-Id': orgId,
-              },
-              body: JSON.stringify({
-                fileName: file.name,
-                fileType: file.type || 'application/octet-stream',
-                fileData: base64Data,
-              }),
+            // Use Server Action for direct S3 upload
+            const result = await uploadFile({
+              fileName: file.name,
+              fileType: file.type || 'application/octet-stream',
+              fileData: base64Data,
+              entityId: taskId,
+              entityType: AttachmentEntityType.task,
             });
 
-            if (!response.ok) {
-              const error = await response.json();
-              throw new Error(error.error || 'Upload failed');
+            if (!result.success) {
+              throw new Error(result.error);
             }
 
-            const data = await response.json();
-            resolve(data);
+            // Transform Server Action response to match Attachment type
+            resolve(result.data as any);
           } catch (error) {
             reject(error);
           }
@@ -126,7 +114,7 @@ export function useTaskAttachmentActions(taskId: string) {
         reader.readAsDataURL(file);
       });
     },
-    [taskId, activeOrg?.id],
+    [taskId],
   );
 
   const getDownloadUrl = useCallback(
