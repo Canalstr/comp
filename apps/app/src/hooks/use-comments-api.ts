@@ -46,20 +46,18 @@ interface UpdateCommentData {
 
 /**
  * Generic hook to fetch comments for any entity using SWR
- * Note: For task comments, use useTaskComments which uses the proxy route
+ * Always uses proxy route - no direct API calls
  */
 export function useComments(
   entityId: string | null,
   entityType: CommentEntityType | null,
   options: UseApiSWROptions<Comment[]> = {},
 ) {
-  // For tasks, use the proxy route
+  // Always use proxy route
   const endpoint =
-    entityId && entityType === 'task' 
-      ? `/api/comments/${entityId}` 
-      : entityId && entityType 
-        ? `/v1/comments?entityId=${entityId}&entityType=${entityType}` 
-        : null;
+    entityId && entityType 
+      ? `/api/comments?entityId=${entityId}&entityType=${entityType}` 
+      : null;
 
   return useApiSWR<Comment[]>(endpoint, options);
 }
@@ -71,12 +69,8 @@ export function useComments(
 export function useCommentActions(taskId?: string) {
   const createComment = useCallback(
     async (data: CreateCommentData) => {
-      // For task comments, use proxy route
-      const endpoint = data.entityType === 'task' && data.entityId
-        ? `/api/comments/${data.entityId}`
-        : '/v1/comments';
-      
-      const response = await fetch(endpoint, {
+      // Always use proxy route - no fallback to direct API
+      const response = await fetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -95,13 +89,9 @@ export function useCommentActions(taskId?: string) {
 
   const updateComment = useCallback(
     async (commentId: string, data: UpdateCommentData) => {
-      // For task comments, use proxy route
-      const endpoint = taskId 
-        ? `/api/comments/${taskId}/${commentId}`
-        : `/v1/comments/${commentId}`;
-
-      const response = await fetch(endpoint, {
-        method: 'PATCH',
+      // Always use proxy route - no fallback to direct API
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
         credentials: 'include',
@@ -114,17 +104,13 @@ export function useCommentActions(taskId?: string) {
 
       return await response.json();
     },
-    [taskId],
+    [],
   );
 
   const deleteComment = useCallback(
     async (commentId: string) => {
-      // For task comments, use proxy route
-      const endpoint = taskId
-        ? `/api/comments/${taskId}/${commentId}`
-        : `/v1/comments/${commentId}`;
-
-      const response = await fetch(endpoint, {
+      // Always use proxy route - no fallback to direct API
+      const response = await fetch(`/api/comments/${commentId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -136,7 +122,7 @@ export function useCommentActions(taskId?: string) {
 
       return { success: true, status: response.status };
     },
-    [taskId],
+    [],
   );
 
   return {
