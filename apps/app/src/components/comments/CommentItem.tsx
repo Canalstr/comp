@@ -66,7 +66,6 @@ export function CommentItem({ comment, refreshComments }: CommentItemProps) {
 
   // Use API hooks instead of server actions
   const { updateComment, deleteComment } = useCommentActions();
-  const { get: apiGet } = useApi();
 
   const handleEditToggle = () => {
     if (!isEditing) {
@@ -118,27 +117,24 @@ export function CommentItem({ comment, refreshComments }: CommentItemProps) {
 
   const handleAttachmentClick = async (attachmentId: string, fileName: string) => {
     try {
-      // Generate fresh download URL on-demand using the useApi hook (with org context)
-      const response = await apiGet<{ downloadUrl: string; expiresIn: number }>(
-        `/v1/attachments/${attachmentId}/download`,
-      );
+      // Use proxy route for attachment download
+      const response = await fetch(`/api/attachments/download/${attachmentId}`, {
+        credentials: 'include',
+      });
 
-      if (response.error || !response.data?.downloadUrl) {
-        console.error('API Error Details:', {
-          status: response.status,
-          error: response.error,
-          data: response.data,
-        });
-        throw new Error(response.error || 'API response missing downloadUrl');
+      if (!response.ok) {
+        throw new Error('Failed to get download URL');
+      }
+
+      const data = await response.json();
+      if (!data.downloadUrl) {
+        throw new Error('API response missing downloadUrl');
       }
 
       // Open the fresh URL in a new tab
-      window.open(response.data.downloadUrl, '_blank', 'noopener,noreferrer');
+      window.open(data.downloadUrl, '_blank', 'noopener,noreferrer');
     } catch (error) {
       console.error('Error downloading attachment:', error);
-
-      // Since we no longer pre-generate URLs, show user error when API fails
-      console.error('No fallback available - URLs are only generated on-demand');
       toast.error(`Failed to download ${fileName}`);
     }
   };
