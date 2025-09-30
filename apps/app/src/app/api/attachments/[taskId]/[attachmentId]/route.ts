@@ -7,9 +7,16 @@ import { NextRequest, NextResponse } from 'next/server';
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 
 /**
- * Get organization ID from session
+ * Get organization ID from header or session
  */
-async function getOrgId(): Promise<string | null> {
+async function getOrgId(req: NextRequest): Promise<string | null> {
+  // Check header first
+  const headerOrgId = req.headers.get('x-organization-id');
+  if (headerOrgId) {
+    return headerOrgId;
+  }
+
+  // Fallback to session
   const session = await auth.api.getSession({ headers: await headers() });
   return session?.session.activeOrganizationId ?? null;
 }
@@ -21,7 +28,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { taskId: string; attachmentId: string } },
 ) {
-  const orgId = await getOrgId();
+  const orgId = await getOrgId(req);
   if (!orgId) {
     return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
   }

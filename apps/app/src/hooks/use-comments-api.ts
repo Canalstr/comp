@@ -1,6 +1,7 @@
 'use client';
 
 import { useApiSWR, UseApiSWROptions } from '@/hooks/use-api-swr';
+import { useActiveOrganization } from '@/utils/auth-client';
 import type { CommentEntityType } from '@db';
 import { useCallback } from 'react';
 
@@ -67,12 +68,22 @@ export function useComments(
  * Uses proxy routes for task comments
  */
 export function useCommentActions(taskId?: string) {
+  const { data: activeOrg } = useActiveOrganization();
+
   const createComment = useCallback(
     async (data: CreateCommentData) => {
+      const orgId = activeOrg?.id;
+      if (!orgId) {
+        throw new Error('Missing organization ID');
+      }
+
       // Always use proxy route - no fallback to direct API
       const response = await fetch('/api/comments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Organization-Id': orgId,
+        },
         body: JSON.stringify(data),
         credentials: 'include',
       });
@@ -84,15 +95,23 @@ export function useCommentActions(taskId?: string) {
 
       return await response.json();
     },
-    [],
+    [activeOrg?.id],
   );
 
   const updateComment = useCallback(
     async (commentId: string, data: UpdateCommentData) => {
+      const orgId = activeOrg?.id;
+      if (!orgId) {
+        throw new Error('Missing organization ID');
+      }
+
       // Always use proxy route - no fallback to direct API
       const response = await fetch(`/api/comments/${commentId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Organization-Id': orgId,
+        },
         body: JSON.stringify(data),
         credentials: 'include',
       });
@@ -104,14 +123,22 @@ export function useCommentActions(taskId?: string) {
 
       return await response.json();
     },
-    [],
+    [activeOrg?.id],
   );
 
   const deleteComment = useCallback(
     async (commentId: string) => {
+      const orgId = activeOrg?.id;
+      if (!orgId) {
+        throw new Error('Missing organization ID');
+      }
+
       // Always use proxy route - no fallback to direct API
       const response = await fetch(`/api/comments/${commentId}`, {
         method: 'DELETE',
+        headers: {
+          'X-Organization-Id': orgId,
+        },
         credentials: 'include',
       });
 
@@ -122,7 +149,7 @@ export function useCommentActions(taskId?: string) {
 
       return { success: true, status: response.status };
     },
-    [],
+    [activeOrg?.id],
   );
 
   return {

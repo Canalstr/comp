@@ -1,6 +1,7 @@
 'use client';
 
 import { useApiSWR, UseApiSWROptions } from '@/hooks/use-api-swr';
+import { useActiveOrganization } from '@/utils/auth-client';
 import type { AttachmentType } from '@db';
 import { useCallback } from 'react';
 
@@ -79,6 +80,7 @@ export function useTaskAttachments(
  * Hook for task attachment actions (upload, download, delete)
  */
 export function useTaskAttachmentActions(taskId: string) {
+  const { data: activeOrg } = useActiveOrganization();
 
   const uploadAttachment = useCallback(
     (file: File): Promise<Attachment> => {
@@ -86,6 +88,12 @@ export function useTaskAttachmentActions(taskId: string) {
         const reader = new FileReader();
         reader.onload = async () => {
           try {
+            const orgId = activeOrg?.id;
+            if (!orgId) {
+              reject(new Error('Missing organization ID'));
+              return;
+            }
+
             const base64String = reader.result as string;
             const base64Data = base64String.split(',')[1]; // Remove data:image/...;base64, prefix
 
@@ -94,6 +102,7 @@ export function useTaskAttachmentActions(taskId: string) {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                'X-Organization-Id': orgId,
               },
               body: JSON.stringify({
                 fileName: file.name,
@@ -117,7 +126,7 @@ export function useTaskAttachmentActions(taskId: string) {
         reader.readAsDataURL(file);
       });
     },
-    [taskId],
+    [taskId, activeOrg?.id],
   );
 
   const getDownloadUrl = useCallback(
@@ -131,9 +140,17 @@ export function useTaskAttachmentActions(taskId: string) {
 
   const deleteAttachment = useCallback(
     async (attachmentId: string) => {
+      const orgId = activeOrg?.id;
+      if (!orgId) {
+        throw new Error('Missing organization ID');
+      }
+
       // Call Next.js API route proxy (server-side API key injection)
       const response = await fetch(`/api/attachments/${taskId}/${attachmentId}`, {
         method: 'DELETE',
+        headers: {
+          'X-Organization-Id': orgId,
+        },
       });
 
       if (!response.ok) {
@@ -144,7 +161,7 @@ export function useTaskAttachmentActions(taskId: string) {
       // DELETE returns 204 No Content - success if no error
       return { success: true, status: response.status };
     },
-    [taskId],
+    [taskId, activeOrg?.id],
   );
 
   return {

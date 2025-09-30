@@ -50,6 +50,7 @@ export function useApiSWR<T = unknown>(
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
+        'X-Organization-Id': orgId,
       },
       cache: 'no-store',
       credentials: 'include',
