@@ -67,12 +67,13 @@ export function useTask(taskId: string | null, options: UseApiSWROptions<Task> =
 
 /**
  * Hook to fetch task attachments using SWR
+ * Uses Next.js API route proxy for server-side API key injection
  */
 export function useTaskAttachments(
   taskId: string | null,
   options: UseApiSWROptions<Attachment[]> = {},
 ) {
-  return useApiSWR<Attachment[]>(taskId ? `/v1/tasks/${taskId}/attachments` : null, options);
+  return useApiSWR<Attachment[]>(taskId ? `/api/attachments/${taskId}` : null, options);
 }
 
 /**
@@ -90,17 +91,26 @@ export function useTaskAttachmentActions(taskId: string) {
             const base64String = reader.result as string;
             const base64Data = base64String.split(',')[1]; // Remove data:image/...;base64, prefix
 
-            const response = await api.post<Attachment>(`/v1/tasks/${taskId}/attachments`, {
-              fileName: file.name,
-              fileType: file.type || 'application/octet-stream',
-              fileData: base64Data,
+            // Call Next.js API route proxy (server-side API key injection)
+            const response = await fetch(`/api/attachments/${taskId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                fileName: file.name,
+                fileType: file.type || 'application/octet-stream',
+                fileData: base64Data,
+              }),
             });
 
-            if (response.error) {
-              throw new Error(response.error);
+            if (!response.ok) {
+              const error = await response.json();
+              throw new Error(error.error || 'Upload failed');
             }
 
-            resolve(response.data!);
+            const data = await response.json();
+            resolve(data);
           } catch (error) {
             reject(error);
           }
@@ -109,7 +119,7 @@ export function useTaskAttachmentActions(taskId: string) {
         reader.readAsDataURL(file);
       });
     },
-    [api, taskId],
+    [taskId],
   );
 
   const getDownloadUrl = useCallback(
@@ -127,14 +137,20 @@ export function useTaskAttachmentActions(taskId: string) {
 
   const deleteAttachment = useCallback(
     async (attachmentId: string) => {
-      const response = await api.delete(`/v1/tasks/${taskId}/attachments/${attachmentId}`);
-      if (response.error) {
-        throw new Error(response.error);
+      // Call Next.js API route proxy (server-side API key injection)
+      const response = await fetch(`/api/attachments/${taskId}/${attachmentId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Delete failed' }));
+        throw new Error(error.error || 'Delete failed');
       }
+
       // DELETE returns 204 No Content - success if no error
       return { success: true, status: response.status };
     },
-    [api, taskId],
+    [taskId],
   );
 
   return {
