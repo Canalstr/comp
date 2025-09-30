@@ -47,6 +47,20 @@ export async function GET(
 
     const data = await upstream.text();
 
+    // Log backend response for debugging
+    console.log('[GET /api/attachments] Backend response:', {
+      status: upstream.status,
+      taskId,
+      orgId,
+      hasApiKey: !!env.COMP_API_KEY,
+      apiUrl: API_BASE_URL,
+      responsePreview: data.substring(0, 200),
+    });
+
+    if (!upstream.ok) {
+      console.error('[GET /api/attachments] Backend error:', data);
+    }
+
     return new NextResponse(data, {
       status: upstream.status,
       headers: {
@@ -54,7 +68,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('Error fetching attachments:', error);
+    console.error('[GET /api/attachments] Proxy error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch attachments' },
       { status: 500 },
@@ -91,6 +105,20 @@ export async function POST(
 
     const data = await upstream.text();
 
+    // Log backend response for debugging
+    console.log('[POST /api/attachments] Backend response:', {
+      status: upstream.status,
+      taskId,
+      orgId,
+      hasApiKey: !!env.COMP_API_KEY,
+      apiUrl: API_BASE_URL,
+      responsePreview: data.substring(0, 200),
+    });
+
+    if (!upstream.ok) {
+      console.error('[POST /api/attachments] Backend error:', data);
+    }
+
     return new NextResponse(data, {
       status: upstream.status,
       headers: {
@@ -98,7 +126,7 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error('Error uploading attachment:', error);
+    console.error('[POST /api/attachments] Proxy error:', error);
     return NextResponse.json({ error: 'Failed to upload attachment' }, { status: 500 });
   }
 }
