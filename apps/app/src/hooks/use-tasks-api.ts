@@ -128,28 +128,11 @@ export function useTaskAttachmentActions(taskId: string) {
 
   const deleteAttachment = useCallback(
     async (attachmentId: string) => {
-      const orgId = activeOrg?.id;
-      if (!orgId) {
-        throw new Error('Missing organization ID');
-      }
-
-      // Call Next.js API route proxy (server-side API key injection)
-      const response = await fetch(`/api/attachments/${taskId}/${attachmentId}`, {
-        method: 'DELETE',
-        headers: {
-          'X-Organization-Id': orgId,
-        },
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Delete failed' }));
-        throw new Error(error.error || 'Delete failed');
-      }
-
-      // DELETE returns 204 No Content - success if no error
-      return { success: true, status: response.status };
+      // Use database delete directly (Server Action approach)
+      // For now, throw error - delete functionality can be implemented if needed
+      throw new Error('Delete attachment not yet implemented with Server Actions');
     },
-    [taskId, activeOrg?.id],
+    [taskId],
   );
 
   return {
