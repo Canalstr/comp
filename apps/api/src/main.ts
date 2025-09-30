@@ -61,10 +61,11 @@ async function bootstrap(): Promise<void> {
     },
   });
 
-  const server = await app.listen(port);
+  const host = process.env.HOST ?? '0.0.0.0';
+  const server = await app.listen(port, host);
   const address = server.address();
   const actualPort = typeof address === 'string' ? port : address?.port || port;
-  const actualUrl = `http://localhost:${actualPort}`;
+  const actualUrl = `http://${host}:${actualPort}`;
 
   console.log(`Application is running on: ${actualUrl}`);
   console.log(`API Documentation available at: ${actualUrl}/api/docs`);

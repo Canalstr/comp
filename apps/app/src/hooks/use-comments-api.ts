@@ -1,6 +1,5 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
 import { useApiSWR, UseApiSWROptions } from '@/hooks/use-api-swr';
 import type { CommentEntityType } from '@db';
 import { useCallback } from 'react';
@@ -47,56 +46,97 @@ interface UpdateCommentData {
 
 /**
  * Generic hook to fetch comments for any entity using SWR
+ * Note: For task comments, use useTaskComments which uses the proxy route
  */
 export function useComments(
   entityId: string | null,
   entityType: CommentEntityType | null,
   options: UseApiSWROptions<Comment[]> = {},
 ) {
+  // For tasks, use the proxy route
   const endpoint =
-    entityId && entityType ? `/v1/comments?entityId=${entityId}&entityType=${entityType}` : null;
+    entityId && entityType === 'task' 
+      ? `/api/comments/${entityId}` 
+      : entityId && entityType 
+        ? `/v1/comments?entityId=${entityId}&entityType=${entityType}` 
+        : null;
 
   return useApiSWR<Comment[]>(endpoint, options);
 }
 
 /**
  * Generic hook for comment CRUD operations
+ * Uses proxy routes for task comments
  */
-export function useCommentActions() {
-  const api = useApi();
-
+export function useCommentActions(taskId?: string) {
   const createComment = useCallback(
     async (data: CreateCommentData) => {
-      const response = await api.post<Comment>('/v1/comments', data);
-      if (response.error) {
-        throw new Error(response.error);
+      // For task comments, use proxy route
+      const endpoint = data.entityType === 'task' && data.entityId
+        ? `/api/comments/${data.entityId}`
+        : '/v1/comments';
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to create comment' }));
+        throw new Error(error.error || 'Failed to create comment');
       }
-      return response.data!;
+
+      return await response.json();
     },
-    [api],
+    [],
   );
 
   const updateComment = useCallback(
     async (commentId: string, data: UpdateCommentData) => {
-      const response = await api.put<Comment>(`/v1/comments/${commentId}`, data);
-      if (response.error) {
-        throw new Error(response.error);
+      // For task comments, use proxy route
+      const endpoint = taskId 
+        ? `/api/comments/${taskId}/${commentId}`
+        : `/v1/comments/${commentId}`;
+
+      const response = await fetch(endpoint, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to update comment' }));
+        throw new Error(error.error || 'Failed to update comment');
       }
-      return response.data!;
+
+      return await response.json();
     },
-    [api],
+    [taskId],
   );
 
   const deleteComment = useCallback(
     async (commentId: string) => {
-      const response = await api.delete(`/v1/comments/${commentId}`);
-      if (response.error) {
-        throw new Error(response.error);
+      // For task comments, use proxy route
+      const endpoint = taskId
+        ? `/api/comments/${taskId}/${commentId}`
+        : `/v1/comments/${commentId}`;
+
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to delete comment' }));
+        throw new Error(error.error || 'Failed to delete comment');
       }
-      // DELETE returns 204 No Content - success if no error
+
       return { success: true, status: response.status };
     },
-    [api],
+    [taskId],
   );
 
   return {
@@ -158,7 +198,7 @@ export function useCommentWithAttachments() {
  */
 export function useOptimisticComments(entityId: string, entityType: CommentEntityType) {
   const { data, error, isLoading, mutate } = useComments(entityId, entityType);
-  const { createComment, updateComment, deleteComment } = useCommentActions();
+  const { createComment, updateComment, deleteComment } = useCommentActions(entityType === 'task' ? entityId : undefined);
 
   const optimisticCreate = useCallback(
     async (

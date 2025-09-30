@@ -1,6 +1,5 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
 import { useApiSWR, UseApiSWROptions } from '@/hooks/use-api-swr';
 import type { AttachmentType } from '@db';
 import { useCallback } from 'react';
@@ -80,7 +79,6 @@ export function useTaskAttachments(
  * Hook for task attachment actions (upload, download, delete)
  */
 export function useTaskAttachmentActions(taskId: string) {
-  const api = useApi();
 
   const uploadAttachment = useCallback(
     (file: File): Promise<Attachment> => {
@@ -124,15 +122,11 @@ export function useTaskAttachmentActions(taskId: string) {
 
   const getDownloadUrl = useCallback(
     async (attachmentId: string) => {
-      const response = await api.get<{ downloadUrl: string }>(
-        `/v1/tasks/${taskId}/attachments/${attachmentId}/download`,
-      );
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      return response.data!.downloadUrl;
+      // This endpoint doesn't exist in proxy yet, but attachments already have downloadUrl
+      // Can be removed or implemented if needed
+      throw new Error('Use downloadUrl from attachment object instead');
     },
-    [api, taskId],
+    [taskId],
   );
 
   const deleteAttachment = useCallback(

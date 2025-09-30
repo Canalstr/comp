@@ -1,6 +1,5 @@
 'use client';
 
-import { useApi } from '@/hooks/use-api';
 import { useCommentActions } from '@/hooks/use-comments-api';
 import { Avatar, AvatarFallback, AvatarImage } from '@comp/ui/avatar';
 import { Button } from '@comp/ui/button';

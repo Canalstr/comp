@@ -80,4 +80,9 @@ debug-setup-page.png
 packages/*/dist
 
 # Generated Prisma Client
-**/src/db/generated/
+**/src/db/generated/*.pkg
+api-key*.txt
+task-definition*.json
+ecs-*.json
+test-aws.js
+*.bak*

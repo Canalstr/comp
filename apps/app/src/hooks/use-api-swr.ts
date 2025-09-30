@@ -1,9 +1,14 @@
 'use client';
 
-import { apiClient, ApiResponse } from '@/lib/api-client';
 import { useActiveOrganization } from '@/utils/auth-client';
 import { useMemo } from 'react';
 import useSWR, { SWRConfiguration, SWRResponse } from 'swr';
+
+export interface ApiResponse<T> {
+  data?: T;
+  error?: string;
+  status: number;
+}
 
 export interface UseApiSWROptions<T> extends SWRConfiguration<ApiResponse<T>> {
   organizationId?: string;
@@ -13,6 +18,7 @@ export interface UseApiSWROptions<T> extends SWRConfiguration<ApiResponse<T>> {
 /**
  * SWR-based hook for GET requests with automatic organization context
  * Provides caching, revalidation, and real-time updates
+ * Uses Next.js API proxy routes to keep API keys server-side
  */
 export function useApiSWR<T = unknown>(
   endpoint: string | null, // null to disable the request
@@ -34,9 +40,36 @@ export function useApiSWR<T = unknown>(
     return [endpoint, organizationId] as const;
   }, [endpoint, organizationId, enabled]);
 
-  // SWR fetcher function
+  // SWR fetcher function using plain fetch for proxy routes
   const fetcher = async ([url, orgId]: readonly [string, string]): Promise<ApiResponse<T>> => {
-    return apiClient.get<T>(url, orgId);
+    // Ensure we're calling proxy routes (start with /api/)
+    if (!url.startsWith('/api/')) {
+      throw new Error('Direct API calls not allowed; use /api/* proxy routes');
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+      credentials: 'include',
+    });
+
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : null;
+
+    if (!response.ok) {
+      const errorMessage = data?.error || data?.message || `Request failed (${response.status})`;
+      return {
+        error: errorMessage,
+        status: response.status,
+      };
+    }
+
+    return {
+      data,
+      status: response.status,
+    };
   };
 
   const swrResponse = useSWR(swrKey, fetcher, {
