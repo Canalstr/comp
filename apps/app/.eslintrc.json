@@ -9,12 +9,12 @@
     "no-restricted-syntax": [
       "error",
       {
-        "selector": "CallExpression[callee.name='fetch'] > Literal[value=/^\\/api\\//]",
-        "message": "Direct fetch('/api/...') is forbidden. Use ApiClient from '@/lib/api-client' instead to ensure proper authentication headers."
+        "selector": "CallExpression[callee.name='fetch'][arguments.0.type='Literal'][arguments.0.raw=/^['\"\\/api\\/]/]",
+        "message": "Use the ApiClient instead of fetch('/api/...')."
       },
       {
-        "selector": "CallExpression[callee.name='fetch'] > TemplateLiteral[quasis.0.value.raw=/^\\/api\\//]",
-        "message": "Direct fetch(`/api/...`) is forbidden. Use ApiClient from '@/lib/api-client' instead to ensure proper authentication headers."
+        "selector": "CallExpression[callee.name='fetch'][arguments.0.type='TemplateLiteral'][arguments.0.quasis.0.value.raw=/^\\/api\\//]",
+        "message": "Use the ApiClient instead of fetch(`/api/...`)."
       }
     ]
   }

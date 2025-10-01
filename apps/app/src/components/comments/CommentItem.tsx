@@ -121,7 +121,6 @@ export function CommentItem({ comment, refreshComments }: CommentItemProps) {
       const { apiClient } = await import('@/lib/api-client');
       const response = await apiClient.get<{ downloadUrl: string; expiresIn: number }>(
         `/api/attachments/download/${attachmentId}`,
-        organizationId,
       );
 
       if (response.error || !response.data?.downloadUrl) {
