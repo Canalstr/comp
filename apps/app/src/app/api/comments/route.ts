@@ -1,7 +1,6 @@
 import 'server-only';
 import { env } from '@/env.mjs';
 import { auth } from '@/utils/auth';
-import { jwtManager } from '@/utils/jwt-manager';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -13,9 +12,10 @@ const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   const orgId = session?.session.activeOrganizationId;
+  const token = session?.session.token;
   
-  if (!orgId) {
-    return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
+  if (!orgId || !token) {
+    return NextResponse.json({ error: 'Missing organization or authentication' }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -30,8 +30,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Get JWT token for API authentication
-    const token = await jwtManager.getValidToken();
+    // Use JWT token from session
     
     const upstream = await fetch(
       `${API_BASE_URL}/v1/comments?entityId=${entityId}&entityType=${entityType}`,
@@ -65,14 +64,14 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   const orgId = session?.session.activeOrganizationId;
+  const token = session?.session.token;
   
-  if (!orgId) {
-    return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
+  if (!orgId || !token) {
+    return NextResponse.json({ error: 'Missing organization or authentication' }, { status: 401 });
   }
 
   try {
     const body = await req.json();
-    const token = await jwtManager.getValidToken();
 
     const upstream = await fetch(`${API_BASE_URL}/v1/comments`, {
       method: 'POST',

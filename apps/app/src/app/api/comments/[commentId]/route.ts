@@ -1,7 +1,6 @@
 import 'server-only';
 import { env } from '@/env.mjs';
 import { auth } from '@/utils/auth';
-import { jwtManager } from '@/utils/jwt-manager';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -16,14 +15,14 @@ export async function PUT(
 ) {
   const session = await auth.api.getSession({ headers: await headers() });
   const orgId = session?.session.activeOrganizationId;
+  const token = session?.session.token;
   
-  if (!orgId) {
-    return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
+  if (!orgId || !token) {
+    return NextResponse.json({ error: 'Missing organization or authentication' }, { status: 401 });
   }
 
   try {
     const body = await req.json();
-    const token = await jwtManager.getValidToken();
 
     const upstream = await fetch(`${API_BASE_URL}/v1/comments/${params.commentId}`, {
       method: 'PUT',
@@ -59,13 +58,13 @@ export async function DELETE(
 ) {
   const session = await auth.api.getSession({ headers: await headers() });
   const orgId = session?.session.activeOrganizationId;
+  const token = session?.session.token;
   
-  if (!orgId) {
-    return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
+  if (!orgId || !token) {
+    return NextResponse.json({ error: 'Missing organization or authentication' }, { status: 401 });
   }
 
   try {
-    const token = await jwtManager.getValidToken();
 
     const upstream = await fetch(`${API_BASE_URL}/v1/comments/${params.commentId}`, {
       method: 'DELETE',
