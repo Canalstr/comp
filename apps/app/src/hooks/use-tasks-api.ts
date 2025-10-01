@@ -1,8 +1,7 @@
 'use client';
 
-import { uploadFile } from '@/actions/files/upload-file';
+import { useApi } from '@/hooks/use-api';
 import { useApiSWR, UseApiSWROptions } from '@/hooks/use-api-swr';
-import { AttachmentEntityType } from '@db';
 import type { AttachmentType } from '@db';
 import { useCallback } from 'react';
 
@@ -68,20 +67,20 @@ export function useTask(taskId: string | null, options: UseApiSWROptions<Task> =
 
 /**
  * Hook to fetch task attachments using SWR
- * Uses Next.js API route proxy for server-side API key injection
  */
 export function useTaskAttachments(
   taskId: string | null,
   options: UseApiSWROptions<Attachment[]> = {},
 ) {
-  return useApiSWR<Attachment[]>(taskId ? `/api/attachments/${taskId}` : null, options);
+  return useApiSWR<Attachment[]>(taskId ? `/v1/tasks/${taskId}/attachments` : null, options);
 }
 
 /**
  * Hook for task attachment actions (upload, download, delete)
- * Uses Server Actions for direct S3 upload
  */
 export function useTaskAttachmentActions(taskId: string) {
+  const api = useApi();
+
   const uploadAttachment = useCallback(
     (file: File): Promise<Attachment> => {
       return new Promise((resolve, reject) => {
@@ -91,21 +90,17 @@ export function useTaskAttachmentActions(taskId: string) {
             const base64String = reader.result as string;
             const base64Data = base64String.split(',')[1]; // Remove data:image/...;base64, prefix
 
-            // Use Server Action for direct S3 upload
-            const result = await uploadFile({
+            const response = await api.post<Attachment>(`/v1/tasks/${taskId}/attachments`, {
               fileName: file.name,
               fileType: file.type || 'application/octet-stream',
               fileData: base64Data,
-              entityId: taskId,
-              entityType: AttachmentEntityType.task,
             });
 
-            if (!result.success) {
-              throw new Error(result.error);
+            if (response.error) {
+              throw new Error(response.error);
             }
 
-            // Transform Server Action response to match Attachment type
-            resolve(result.data as any);
+            resolve(response.data!);
           } catch (error) {
             reject(error);
           }
@@ -114,25 +109,32 @@ export function useTaskAttachmentActions(taskId: string) {
         reader.readAsDataURL(file);
       });
     },
-    [taskId],
+    [api, taskId],
   );
 
   const getDownloadUrl = useCallback(
     async (attachmentId: string) => {
-      // This endpoint doesn't exist in proxy yet, but attachments already have downloadUrl
-      // Can be removed or implemented if needed
-      throw new Error('Use downloadUrl from attachment object instead');
+      const response = await api.get<{ downloadUrl: string }>(
+        `/v1/tasks/${taskId}/attachments/${attachmentId}/download`,
+      );
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      return response.data!.downloadUrl;
     },
-    [taskId],
+    [api, taskId],
   );
 
   const deleteAttachment = useCallback(
     async (attachmentId: string) => {
-      // Use database delete directly (Server Action approach)
-      // For now, throw error - delete functionality can be implemented if needed
-      throw new Error('Delete attachment not yet implemented with Server Actions');
+      const response = await api.delete(`/v1/tasks/${taskId}/attachments/${attachmentId}`);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      // DELETE returns 204 No Content - success if no error
+      return { success: true, status: response.status };
     },
-    [taskId],
+    [api, taskId],
   );
 
   return {
@@ -251,4 +253,50 @@ export function useTaskComments(taskId: string | null, options: UseApiSWROptions
   return useApiSWR<Comment[]>(taskId ? `/v1/tasks/${taskId}/comments` : null, options);
 }
 
-// Deprecated function removed - use useCommentActions from '@/hooks/use-comments-api' instead
+/**
+ * @deprecated Use useCommentActions from '@/hooks/use-comments-api' instead
+ */
+export function useTaskCommentActions(taskId: string) {
+  const api = useApi();
+
+  const createComment = useCallback(
+    async (data: { content: string }) => {
+      const response = await api.post<Comment>(`/v1/tasks/${taskId}/comments`, data);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      return response.data!;
+    },
+    [api, taskId],
+  );
+
+  const updateComment = useCallback(
+    async (commentId: string, data: { content: string }) => {
+      const response = await api.put<Comment>(`/v1/tasks/${taskId}/comments/${commentId}`, {
+        content: data.content,
+      });
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      return response.data!;
+    },
+    [api, taskId],
+  );
+
+  const deleteComment = useCallback(
+    async (commentId: string) => {
+      const response = await api.delete(`/v1/tasks/${taskId}/comments/${commentId}`);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      return response;
+    },
+    [api, taskId],
+  );
+
+  return {
+    createComment,
+    updateComment,
+    deleteComment,
+  };
+}
