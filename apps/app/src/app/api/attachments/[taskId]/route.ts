@@ -4,7 +4,7 @@ import { auth } from '@/utils/auth';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+const API_BASE_URL = env.COMP_API_BASE_URL || 'http://localhost:3333';
 
 /**
  * GET /api/attachments/[taskId] - List attachments for a task

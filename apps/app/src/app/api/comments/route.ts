@@ -4,7 +4,7 @@ import { auth } from '@/utils/auth';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+const API_BASE_URL = env.COMP_API_BASE_URL || 'http://localhost:3333';
 
 /**
  * GET /api/comments?entityId=xxx&entityType=xxx - List comments for any entity
@@ -67,17 +67,14 @@ export async function GET(req: NextRequest) {
  * POST /api/comments - Create a comment for any entity
  */
 export async function POST(req: NextRequest) {
-  const requestHeaders = await headers();
+  const h = await headers();
+  const token = await getJwtFromAuth(h);
   
-  const [{ session }, { token }] = await Promise.all([
-    auth.api.getSession({ headers: requestHeaders }),
-    auth.api.getToken({ headers: requestHeaders }),
-  ]);
-
-  const organizationId = session?.activeOrganizationId;
+  const session = await auth.api.getSession({ headers: h });
+  const organizationId = session?.session?.activeOrganizationId;
   
   if (!token || !organizationId) {
-    return NextResponse.json({ error: 'Missing authentication or organization context' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {

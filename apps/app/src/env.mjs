@@ -36,6 +36,7 @@ export const env = createEnv({
     GA4_API_SECRET: z.string().optional(),
     GA4_MEASUREMENT_ID: z.string().optional(),
     LINKEDIN_CONVERSIONS_ACCESS_TOKEN: z.string().optional(),
+    COMP_API_BASE_URL: z.string().optional(),
   },
 
   client: {
@@ -94,6 +95,7 @@ export const env = createEnv({
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     COMP_API_KEY: process.env.COMP_API_KEY,
     COMP_API_ORG_ID: process.env.COMP_API_ORG_ID,    NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+    COMP_API_BASE_URL: process.env.COMP_API_BASE_URL,
   },
 
   skipValidation: !!process.env.CI || !!process.env.SKIP_ENV_VALIDATION,

@@ -37,7 +37,7 @@ export async function GET(
   try {
     // Call NestJS API to get download URL
     const upstream = await fetch(
-      `${env.NEXT_PUBLIC_API_URL}/v1/attachments/${attachmentId}/download`,
+      `${env.COMP_API_BASE_URL}/v1/attachments/${attachmentId}/download`,
       {
         headers: {
           'X-API-Key': env.COMP_API_KEY || '',
