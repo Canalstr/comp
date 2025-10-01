@@ -10,12 +10,17 @@ const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
  * GET /api/comments?entityId=xxx&entityType=xxx - List comments for any entity
  */
 export async function GET(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const orgId = session?.session.activeOrganizationId;
-  const token = session?.session.token;
+  const requestHeaders = await headers();
   
-  if (!orgId || !token) {
-    return NextResponse.json({ error: 'Missing organization or authentication' }, { status: 401 });
+  const [{ session }, { token }] = await Promise.all([
+    auth.api.getSession({ headers: requestHeaders }),
+    auth.api.getToken({ headers: requestHeaders }),
+  ]);
+
+  const organizationId = session?.activeOrganizationId;
+  
+  if (!token || !organizationId) {
+    return NextResponse.json({ error: 'Missing authentication or organization context' }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -37,7 +42,7 @@ export async function GET(req: NextRequest) {
       {
         headers: {
           'Authorization': `Bearer ${token}`,
-          'X-Organization-Id': orgId,
+          'X-Organization-Id': organizationId,
           'Accept': 'application/json',
         },
         cache: 'no-store',
@@ -62,12 +67,17 @@ export async function GET(req: NextRequest) {
  * POST /api/comments - Create a comment for any entity
  */
 export async function POST(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const orgId = session?.session.activeOrganizationId;
-  const token = session?.session.token;
+  const requestHeaders = await headers();
   
-  if (!orgId || !token) {
-    return NextResponse.json({ error: 'Missing organization or authentication' }, { status: 401 });
+  const [{ session }, { token }] = await Promise.all([
+    auth.api.getSession({ headers: requestHeaders }),
+    auth.api.getToken({ headers: requestHeaders }),
+  ]);
+
+  const organizationId = session?.activeOrganizationId;
+  
+  if (!token || !organizationId) {
+    return NextResponse.json({ error: 'Missing authentication or organization context' }, { status: 401 });
   }
 
   try {
@@ -77,7 +87,7 @@ export async function POST(req: NextRequest) {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'X-Organization-Id': orgId,
+        'X-Organization-Id': organizationId,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),

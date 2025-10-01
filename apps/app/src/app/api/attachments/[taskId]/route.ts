@@ -13,11 +13,16 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { taskId: string } },
 ) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const token = session?.session?.token;
-  const orgId = session?.session?.activeOrganizationId;
+  const requestHeaders = await headers();
   
-  if (!token || !orgId) {
+  const [{ session }, { token }] = await Promise.all([
+    auth.api.getSession({ headers: requestHeaders }),
+    auth.api.getToken({ headers: requestHeaders }),
+  ]);
+
+  const organizationId = session?.activeOrganizationId;
+  
+  if (!token || !organizationId) {
     return NextResponse.json({ error: 'Missing authentication or organization context' }, { status: 401 });
   }
 
@@ -28,7 +33,7 @@ export async function GET(
       {
         headers: {
           'Authorization': `Bearer ${token}`,
-          'X-Organization-Id': orgId,
+          'X-Organization-Id': organizationId,
           'Accept': 'application/json',
         },
         cache: 'no-store',
@@ -56,11 +61,16 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { taskId: string } },
 ) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const token = session?.session?.token;
-  const orgId = session?.session?.activeOrganizationId;
+  const requestHeaders = await headers();
   
-  if (!token || !orgId) {
+  const [{ session }, { token }] = await Promise.all([
+    auth.api.getSession({ headers: requestHeaders }),
+    auth.api.getToken({ headers: requestHeaders }),
+  ]);
+
+  const organizationId = session?.activeOrganizationId;
+  
+  if (!token || !organizationId) {
     return NextResponse.json({ error: 'Missing authentication or organization context' }, { status: 401 });
   }
 
@@ -71,7 +81,7 @@ export async function POST(
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'X-Organization-Id': orgId,
+        'X-Organization-Id': organizationId,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
