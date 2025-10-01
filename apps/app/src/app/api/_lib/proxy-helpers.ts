@@ -1,7 +1,42 @@
 // apps/app/src/app/api/_lib/proxy-helpers.ts
+import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = process.env.COMP_API_BASE_URL!;
 const PROXY_DEBUG = process.env.NODE_ENV !== 'production';
+
+export function getProxyContext(req: NextRequest) {
+  const authHeader =
+    req.headers.get('authorization') ??
+    req.headers.get('Authorization') ??
+    '';
+
+  if (!authHeader.trim()) {
+    return { ok: false as const, response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
+  }
+
+  const orgHeader =
+    req.headers.get('x-organization-id') ??
+    req.headers.get('X-Organization-Id') ??
+    req.nextUrl.searchParams.get('org') ??
+    req.nextUrl.searchParams.get('orgId') ??
+    '';
+
+  if (!orgHeader.trim()) {
+    return {
+      ok: false as const,
+      response: NextResponse.json(
+        { error: 'Missing organization context' },
+        { status: 401 },
+      ),
+    };
+  }
+
+  return {
+    ok: true as const,
+    authHeader,
+    orgHeader,
+  };
+}
 
 type ForwardJsonInit = {
   path: string;
@@ -21,8 +56,9 @@ export async function forwardJson({
   extraHeaders,
 }: ForwardJsonInit) {
   if (PROXY_DEBUG) {
-    console.info('🔍 proxy headers', {
+    console.info('🔍 proxy forwarding', {
       path,
+      method,
       hasAuth: Boolean(authHeader),
       hasOrg: Boolean(orgHeader),
       hasBody: Boolean(body),
