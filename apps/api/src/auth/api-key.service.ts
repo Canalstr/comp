@@ -48,15 +48,6 @@ export class ApiKeyService {
     }
 
     try {
-      // First, check if the API key matches the environment variable (for deployment)
-      const envApiKey = process.env.COMP_API_KEY;
-      const envOrgId = process.env.COMP_API_ORG_ID ?? 'default-org';
-
-      if (envApiKey && apiKey === envApiKey) {
-        this.logger.log('Valid API key from environment variable fallback');
-        return envOrgId;
-      }
-
       // Check if the model exists in the Prisma client
       if (typeof db.apiKey === 'undefined') {
         this.logger.error(

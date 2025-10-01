@@ -5,6 +5,8 @@ import type { OpenAPIObject } from '@nestjs/swagger';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as express from 'express';
 import { AppModule } from './app.module';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import path from 'path';
 
 async function bootstrap(): Promise<void> {
   const app: INestApplication = await NestFactory.create(AppModule);
@@ -34,7 +36,6 @@ async function bootstrap(): Promise<void> {
 
   // Get server configuration from environment variables
   const port = process.env.PORT ?? 3333;
-  const baseUrl = process.env.BASE_URL ?? `http://localhost:${port}`;
 
   // Swagger/OpenAPI configuration
   const config = new DocumentBuilder()
@@ -50,25 +51,41 @@ async function bootstrap(): Promise<void> {
       },
       'apikey',
     )
-    .addServer(baseUrl, 'API Server')
+    .addServer('https://api.trycomp.ai', 'API Server')
     .build();
   const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
 
   // Setup Swagger UI at /api/docs
   SwaggerModule.setup('api/docs', app, document, {
+    raw: ['json'],
     swaggerOptions: {
       persistAuthorization: true, // Keep auth between page refreshes
     },
   });
 
-  const host = process.env.HOST ?? '0.0.0.0';
-  const server = await app.listen(port, host);
+  const server = await app.listen(port);
   const address = server.address();
   const actualPort = typeof address === 'string' ? port : address?.port || port;
-  const actualUrl = `http://${host}:${actualPort}`;
+  const actualUrl = `http://localhost:${actualPort}`;
 
   console.log(`Application is running on: ${actualUrl}`);
   console.log(`API Documentation available at: ${actualUrl}/api/docs`);
+
+  // Write OpenAPI documentation to packages/docs/openapi.json only in development
+  if (process.env.NODE_ENV !== 'production') {
+    const openapiPath = path.join(
+      __dirname,
+      '../../../../packages/docs/openapi.json',
+    );
+
+    const docsDir = path.dirname(openapiPath);
+    if (!existsSync(docsDir)) {
+      mkdirSync(docsDir, { recursive: true });
+    }
+
+    writeFileSync(openapiPath, JSON.stringify(document, null, 2));
+    console.log('OpenAPI documentation written to packages/docs/openapi.json');
+  }
 }
 
 // Handle bootstrap errors properly

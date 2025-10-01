@@ -1,38 +1,32 @@
-# -------- build stage --------
-FROM node:20-alpine AS build
+# Use Node.js runtime for production
+FROM node:20-alpine
 
-# Install curl and bash, then Bun
-RUN apk add --no-cache curl bash
-RUN curl -fsSL https://bun.sh/install | bash
-ENV PATH="/root/.bun/bin:$PATH"
+# Install wget for health check
+RUN apk add --no-cache wget
 
 WORKDIR /app
 
-# Copy the entire workspace for proper dependency resolution
+# Copy the entire pre-built bundle (no dependencies needed)
 COPY . .
 
-# Install dependencies for the entire workspace
-RUN bun install --frozen-lockfile
-
-# Generate Prisma client and build the API
-RUN cd apps/api && bun run db:generate
-RUN cd apps/api && bun run build
-
-# -------- runtime stage --------
-FROM node:20-alpine AS runtime
-WORKDIR /app
+# Set environment variables
 ENV NODE_ENV=production
+ENV PORT=3333
 
-# Copy the built application
-COPY --from=build /app/apps/api/dist ./dist
+# Create a non-root user for security
+RUN addgroup --system nestjs && adduser --system --ingroup nestjs nestjs
 
-# Copy package files and production node_modules
-COPY --from=build /app/apps/api/package*.json ./
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/apps/api/prisma ./prisma
+# Change ownership to nestjs user
+RUN chown -R nestjs:nestjs /app
 
-# Copy shared packages that the dist code imports
-COPY --from=build /app/packages ./packages
+USER nestjs
 
+# Expose the port the app runs on
 EXPOSE 3333
-CMD ["node", "dist/src/main.js"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3333/v1/health || exit 1
+
+# Start the application
+CMD ["node", "src/main.js"]
