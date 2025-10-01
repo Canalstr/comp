@@ -1,10 +1,21 @@
 {
   "extends": ["next/core-web-vitals"],
-  "ignorePatterns": ["src/db/generated/**"],
+  "ignorePatterns": ["src/db/generated/**", "src/app/api/**"],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "react/no-unescaped-entities": "off",
-    "react/display-name": "off"
+    "react/display-name": "off",
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "CallExpression[callee.name='fetch'] > Literal[value=/^\\/api\\//]",
+        "message": "Direct fetch('/api/...') is forbidden. Use ApiClient from '@/lib/api-client' instead to ensure proper authentication headers."
+      },
+      {
+        "selector": "CallExpression[callee.name='fetch'] > TemplateLiteral[quasis.0.value.raw=/^\\/api\\//]",
+        "message": "Direct fetch(`/api/...`) is forbidden. Use ApiClient from '@/lib/api-client' instead to ensure proper authentication headers."
+      }
+    ]
   }
 }
