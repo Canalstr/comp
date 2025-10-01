@@ -20,8 +20,8 @@ export async function PUT(
 /**
  * DELETE /api/comments/[commentId] - Delete a comment
  */
-export async function DELETE(_: NextRequest, { params }: { params: { commentId: string } }) {
-  return forwardJson(new Request(''), {
+export async function DELETE(req: NextRequest, { params }: { params: { commentId: string } }) {
+  return forwardJson(req, {
     path: `/v1/comments/${params.commentId}`,
     method: 'DELETE',
   });

@@ -5,8 +5,8 @@ import { forwardJson } from '../../_lib/proxy-helpers';
 /**
  * GET /api/attachments/[taskId] - List attachments for a task
  */
-export async function GET(_: NextRequest, { params }: { params: { taskId: string } }) {
-  return forwardJson(new Request(''), {
+export async function GET(req: NextRequest, { params }: { params: { taskId: string } }) {
+  return forwardJson(req, {
     path: `/v1/tasks/${params.taskId}/attachments`,
     method: 'GET',
   });
