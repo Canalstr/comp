@@ -117,22 +117,19 @@ export function CommentItem({ comment, refreshComments }: CommentItemProps) {
 
   const handleAttachmentClick = async (attachmentId: string, fileName: string) => {
     try {
-      // Use proxy route for attachment download
-      const response = await fetch(`/api/attachments/download/${attachmentId}`, {
-        credentials: 'include',
-      });
+      // Use ApiClient to ensure proper authentication
+      const { apiClient } = await import('@/lib/api-client');
+      const response = await apiClient.get<{ downloadUrl: string; expiresIn: number }>(
+        `/api/attachments/download/${attachmentId}`,
+        organizationId,
+      );
 
-      if (!response.ok) {
-        throw new Error('Failed to get download URL');
-      }
-
-      const data = await response.json();
-      if (!data.downloadUrl) {
-        throw new Error('API response missing downloadUrl');
+      if (response.error || !response.data?.downloadUrl) {
+        throw new Error(response.error || 'API response missing downloadUrl');
       }
 
       // Open the fresh URL in a new tab
-      window.open(data.downloadUrl, '_blank', 'noopener,noreferrer');
+      window.open(response.data.downloadUrl, '_blank', 'noopener,noreferrer');
     } catch (error) {
       console.error('Error downloading attachment:', error);
       toast.error(`Failed to download ${fileName}`);

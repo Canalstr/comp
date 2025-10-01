@@ -47,9 +47,22 @@ export function useApiSWR<T = unknown>(
       throw new Error('Direct API calls not allowed; use /api/* proxy routes');
     }
 
+    // Import jwtManager dynamically to avoid circular deps
+    const { jwtManager } = await import('@/utils/jwt-manager');
+    const token = await jwtManager.getValidToken();
+
+    if (!token) {
+      console.error('⚠️ SWR fetcher: No JWT token available');
+      return {
+        error: 'Authentication required',
+        status: 401,
+      };
+    }
+
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
         'X-Organization-Id': orgId,
       },
       cache: 'no-store',
