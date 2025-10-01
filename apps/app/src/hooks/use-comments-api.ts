@@ -55,7 +55,7 @@ export function useComments(
   options: UseApiSWROptions<Comment[]> = {},
 ) {
   const endpoint =
-    entityId && entityType ? `/v1/comments?entityId=${entityId}&entityType=${entityType}` : null;
+    entityId && entityType ? `/api/comments?entityId=${entityId}&entityType=${entityType}` : null;
 
   return useApiSWR<Comment[]>(endpoint, options);
 }
@@ -68,7 +68,7 @@ export function useCommentActions() {
 
   const createComment = useCallback(
     async (data: CreateCommentData) => {
-      const response = await api.post<Comment>('/v1/comments', data);
+      const response = await api.post<Comment>('/api/comments', data);
       if (response.error) {
         throw new Error(response.error);
       }
@@ -79,7 +79,7 @@ export function useCommentActions() {
 
   const updateComment = useCallback(
     async (commentId: string, data: UpdateCommentData) => {
-      const response = await api.put<Comment>(`/v1/comments/${commentId}`, data);
+      const response = await api.put<Comment>(`/api/comments/${commentId}`, data);
       if (response.error) {
         throw new Error(response.error);
       }
@@ -90,7 +90,7 @@ export function useCommentActions() {
 
   const deleteComment = useCallback(
     async (commentId: string) => {
-      const response = await api.delete(`/v1/comments/${commentId}`);
+      const response = await api.delete(`/api/comments/${commentId}`);
       if (response.error) {
         throw new Error(response.error);
       }

@@ -1,25 +1,11 @@
 import 'server-only';
 import { env } from '@/env.mjs';
 import { auth } from '@/utils/auth';
+import { jwtManager } from '@/utils/jwt-manager';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-
-/**
- * Get organization ID from header or session
- */
-async function getOrgId(req: NextRequest): Promise<string | null> {
-  // Check header first
-  const headerOrgId = req.headers.get('x-organization-id');
-  if (headerOrgId) {
-    return headerOrgId;
-  }
-
-  // Fallback to session
-  const session = await auth.api.getSession({ headers: await headers() });
-  return session?.session.activeOrganizationId ?? null;
-}
 
 /**
  * GET /api/attachments/[taskId] - List attachments for a task
@@ -28,38 +14,29 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { taskId: string } },
 ) {
-  const orgId = await getOrgId(req);
+  const session = await auth.api.getSession({ headers: await headers() });
+  const orgId = session?.session.activeOrganizationId;
+  
   if (!orgId) {
     return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
   }
 
-  const taskId = params.taskId;
-
   try {
-    const upstream = await fetch(`${API_BASE_URL}/v1/tasks/${taskId}/attachments`, {
-      headers: {
-        'X-API-Key': env.COMP_API_KEY || '',
-        'X-Organization-Id': orgId,
-        Accept: 'application/json',
+    const token = await jwtManager.getValidToken();
+    
+    const upstream = await fetch(
+      `${API_BASE_URL}/v1/tasks/${params.taskId}/attachments`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Organization-Id': orgId,
+          'Accept': 'application/json',
+        },
+        cache: 'no-store',
       },
-      cache: 'no-store',
-    });
+    );
 
     const data = await upstream.text();
-
-    // Log backend response for debugging
-    console.log('[GET /api/attachments] Backend response:', {
-      status: upstream.status,
-      taskId,
-      orgId,
-      hasApiKey: !!env.COMP_API_KEY,
-      apiUrl: API_BASE_URL,
-      responsePreview: data.substring(0, 200),
-    });
-
-    if (!upstream.ok) {
-      console.error('[GET /api/attachments] Backend error:', data);
-    }
 
     return new NextResponse(data, {
       status: upstream.status,
@@ -68,56 +45,41 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[GET /api/attachments] Proxy error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch attachments' },
-      { status: 500 },
-    );
+    console.error('Error fetching attachments:', error);
+    return NextResponse.json({ error: 'Failed to fetch attachments' }, { status: 500 });
   }
 }
 
 /**
- * POST /api/attachments/[taskId] - Upload attachment for a task
+ * POST /api/attachments/[taskId] - Upload attachment to a task
  */
 export async function POST(
   req: NextRequest,
   { params }: { params: { taskId: string } },
 ) {
-  const orgId = await getOrgId(req);
+  const session = await auth.api.getSession({ headers: await headers() });
+  const orgId = session?.session.activeOrganizationId;
+  
   if (!orgId) {
     return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
   }
 
-  const taskId = params.taskId;
-
   try {
     const body = await req.json();
+    const token = await jwtManager.getValidToken();
 
-    const upstream = await fetch(`${API_BASE_URL}/v1/tasks/${taskId}/attachments`, {
+    const upstream = await fetch(`${API_BASE_URL}/v1/tasks/${params.taskId}/attachments`, {
       method: 'POST',
       headers: {
-        'X-API-Key': env.COMP_API_KEY || '',
+        'Authorization': `Bearer ${token}`,
         'X-Organization-Id': orgId,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
+      cache: 'no-store',
     });
 
     const data = await upstream.text();
-
-    // Log backend response for debugging
-    console.log('[POST /api/attachments] Backend response:', {
-      status: upstream.status,
-      taskId,
-      orgId,
-      hasApiKey: !!env.COMP_API_KEY,
-      apiUrl: API_BASE_URL,
-      responsePreview: data.substring(0, 200),
-    });
-
-    if (!upstream.ok) {
-      console.error('[POST /api/attachments] Backend error:', data);
-    }
 
     return new NextResponse(data, {
       status: upstream.status,
@@ -126,7 +88,7 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error('[POST /api/attachments] Proxy error:', error);
+    console.error('Error uploading attachment:', error);
     return NextResponse.json({ error: 'Failed to upload attachment' }, { status: 500 });
   }
 }

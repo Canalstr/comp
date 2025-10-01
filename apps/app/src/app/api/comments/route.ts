@@ -1,31 +1,19 @@
 import 'server-only';
 import { env } from '@/env.mjs';
 import { auth } from '@/utils/auth';
+import { jwtManager } from '@/utils/jwt-manager';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 
 /**
- * Get organization ID from header or session
- */
-async function getOrgId(req: NextRequest): Promise<string | null> {
-  // Check header first
-  const headerOrgId = req.headers.get('x-organization-id');
-  if (headerOrgId) {
-    return headerOrgId;
-  }
-
-  // Fallback to session
-  const session = await auth.api.getSession({ headers: await headers() });
-  return session?.session.activeOrganizationId ?? null;
-}
-
-/**
  * GET /api/comments?entityId=xxx&entityType=xxx - List comments for any entity
  */
 export async function GET(req: NextRequest) {
-  const orgId = await getOrgId(req);
+  const session = await auth.api.getSession({ headers: await headers() });
+  const orgId = session?.session.activeOrganizationId;
+  
   if (!orgId) {
     return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
   }
@@ -42,13 +30,16 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Get JWT token for API authentication
+    const token = await jwtManager.getValidToken();
+    
     const upstream = await fetch(
       `${API_BASE_URL}/v1/comments?entityId=${entityId}&entityType=${entityType}`,
       {
         headers: {
-          'X-API-Key': env.COMP_API_KEY || '',
+          'Authorization': `Bearer ${token}`,
           'X-Organization-Id': orgId,
-          Accept: 'application/json',
+          'Accept': 'application/json',
         },
         cache: 'no-store',
       },
@@ -72,22 +63,26 @@ export async function GET(req: NextRequest) {
  * POST /api/comments - Create a comment for any entity
  */
 export async function POST(req: NextRequest) {
-  const orgId = await getOrgId(req);
+  const session = await auth.api.getSession({ headers: await headers() });
+  const orgId = session?.session.activeOrganizationId;
+  
   if (!orgId) {
     return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
   }
 
   try {
     const body = await req.json();
+    const token = await jwtManager.getValidToken();
 
     const upstream = await fetch(`${API_BASE_URL}/v1/comments`, {
       method: 'POST',
       headers: {
-        'X-API-Key': env.COMP_API_KEY || '',
+        'Authorization': `Bearer ${token}`,
         'X-Organization-Id': orgId,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
+      cache: 'no-store',
     });
 
     const data = await upstream.text();

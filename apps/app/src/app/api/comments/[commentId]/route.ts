@@ -1,25 +1,11 @@
 import 'server-only';
 import { env } from '@/env.mjs';
 import { auth } from '@/utils/auth';
+import { jwtManager } from '@/utils/jwt-manager';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-
-/**
- * Get organization ID from header or session
- */
-async function getOrgId(req: NextRequest): Promise<string | null> {
-  // Check header first
-  const headerOrgId = req.headers.get('x-organization-id');
-  if (headerOrgId) {
-    return headerOrgId;
-  }
-
-  // Fallback to session
-  const session = await auth.api.getSession({ headers: await headers() });
-  return session?.session.activeOrganizationId ?? null;
-}
 
 /**
  * PUT /api/comments/[commentId] - Update a comment
@@ -28,24 +14,26 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { commentId: string } },
 ) {
-  const orgId = await getOrgId(req);
+  const session = await auth.api.getSession({ headers: await headers() });
+  const orgId = session?.session.activeOrganizationId;
+  
   if (!orgId) {
     return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
   }
 
-  const { commentId } = params;
-
   try {
     const body = await req.json();
+    const token = await jwtManager.getValidToken();
 
-    const upstream = await fetch(`${API_BASE_URL}/v1/comments/${commentId}`, {
+    const upstream = await fetch(`${API_BASE_URL}/v1/comments/${params.commentId}`, {
       method: 'PUT',
       headers: {
-        'X-API-Key': env.COMP_API_KEY || '',
+        'Authorization': `Bearer ${token}`,
         'X-Organization-Id': orgId,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
+      cache: 'no-store',
     });
 
     const data = await upstream.text();
@@ -69,24 +57,36 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { commentId: string } },
 ) {
-  const orgId = await getOrgId(req);
+  const session = await auth.api.getSession({ headers: await headers() });
+  const orgId = session?.session.activeOrganizationId;
+  
   if (!orgId) {
     return NextResponse.json({ error: 'Missing organization' }, { status: 400 });
   }
 
-  const { commentId } = params;
-
   try {
-    const upstream = await fetch(`${API_BASE_URL}/v1/comments/${commentId}`, {
+    const token = await jwtManager.getValidToken();
+
+    const upstream = await fetch(`${API_BASE_URL}/v1/comments/${params.commentId}`, {
       method: 'DELETE',
       headers: {
-        'X-API-Key': env.COMP_API_KEY || '',
+        'Authorization': `Bearer ${token}`,
         'X-Organization-Id': orgId,
       },
+      cache: 'no-store',
     });
 
-    return new NextResponse(null, {
+    if (upstream.status === 204) {
+      return new NextResponse(null, { status: 204 });
+    }
+
+    const data = await upstream.text();
+
+    return new NextResponse(data, {
       status: upstream.status,
+      headers: {
+        'content-type': upstream.headers.get('content-type') ?? 'application/json',
+      },
     });
   } catch (error) {
     console.error('Error deleting comment:', error);

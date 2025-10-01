@@ -72,7 +72,7 @@ export function useTaskAttachments(
   taskId: string | null,
   options: UseApiSWROptions<Attachment[]> = {},
 ) {
-  return useApiSWR<Attachment[]>(taskId ? `/v1/tasks/${taskId}/attachments` : null, options);
+  return useApiSWR<Attachment[]>(taskId ? `/api/attachments/${taskId}` : null, options);
 }
 
 /**
@@ -90,7 +90,7 @@ export function useTaskAttachmentActions(taskId: string) {
             const base64String = reader.result as string;
             const base64Data = base64String.split(',')[1]; // Remove data:image/...;base64, prefix
 
-            const response = await api.post<Attachment>(`/v1/tasks/${taskId}/attachments`, {
+            const response = await api.post<Attachment>(`/api/attachments/${taskId}`, {
               fileName: file.name,
               fileType: file.type || 'application/octet-stream',
               fileData: base64Data,
