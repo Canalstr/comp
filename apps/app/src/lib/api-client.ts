@@ -48,17 +48,25 @@ export class ApiClient {
     // Add JWT token for authentication
     if (typeof window !== 'undefined') {
       try {
-        // Get a valid (non-stale) JWT token
+        // Get a valid (non-stale) JWT token - MUST have this to proceed
         const token = await jwtManager.getValidToken();
 
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-          console.log('🎯 Using fresh JWT token for API authentication');
-        } else {
-          console.log('⚠️ No JWT token available for API authentication');
+        if (!token) {
+          console.error('⚠️ No JWT token available - aborting API call');
+          return {
+            error: 'Authentication required - please refresh the page',
+            status: 401,
+          };
         }
+
+        headers['Authorization'] = `Bearer ${token}`;
+        console.log('🎯 Using fresh JWT token for API authentication');
       } catch (error) {
         console.error('❌ Error getting JWT token for API call:', error);
+        return {
+          error: 'Failed to get authentication token',
+          status: 401,
+        };
       }
     }
 
