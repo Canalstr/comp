@@ -20,6 +20,7 @@ import {
 } from '@comp/ui/dropdown-menu';
 import { Textarea } from '@comp/ui/textarea';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import type React from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -59,6 +60,9 @@ interface CommentItemProps {
 }
 
 export function CommentItem({ comment, refreshComments }: CommentItemProps) {
+  const params = useParams<{ orgId: string }>();
+  const organizationId = Array.isArray(params.orgId) ? params.orgId[0] : params.orgId;
+  
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(comment.content);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -121,6 +125,7 @@ export function CommentItem({ comment, refreshComments }: CommentItemProps) {
       const { apiClient } = await import('@/lib/api-client');
       const response = await apiClient.get<{ downloadUrl: string; expiresIn: number }>(
         `/api/attachments/download/${attachmentId}`,
+        organizationId,
       );
 
       if (response.error || !response.data?.downloadUrl) {
