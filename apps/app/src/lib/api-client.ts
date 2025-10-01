@@ -22,7 +22,9 @@ export class ApiClient {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+    // Use empty string to make relative URLs (calls Next.js proxy routes at /api/*)
+    // Proxy routes handle forwarding to actual NestJS API
+    this.baseUrl = '';
   }
 
   /**
