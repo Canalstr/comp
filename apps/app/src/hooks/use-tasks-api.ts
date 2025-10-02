@@ -127,7 +127,7 @@ export function useTaskAttachmentActions(taskId: string) {
 
   const deleteAttachment = useCallback(
     async (attachmentId: string) => {
-      const response = await api.delete(`/v1/tasks/${taskId}/attachments/${attachmentId}`);
+      const response = await api.delete(`/api/attachments/${taskId}/${attachmentId}`);
       if (response.error) {
         throw new Error(response.error);
       }

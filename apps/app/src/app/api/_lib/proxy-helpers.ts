@@ -76,6 +76,11 @@ export async function forwardJson({
     },
   });
 
+  // Handle 204 No Content (DELETE operations must return null body)
+  if (upstream.status === 204) {
+    return new Response(null, { status: 204 });
+  }
+
   const text = await upstream.text();
 
   if (!upstream.ok && PROXY_DEBUG) {
