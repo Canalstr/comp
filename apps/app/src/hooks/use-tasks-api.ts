@@ -115,14 +115,14 @@ export function useTaskAttachmentActions(taskId: string) {
   const getDownloadUrl = useCallback(
     async (attachmentId: string) => {
       const response = await api.get<{ downloadUrl: string }>(
-        `/v1/tasks/${taskId}/attachments/${attachmentId}/download`,
+        `/api/attachments/download/${attachmentId}`,
       );
       if (response.error) {
         throw new Error(response.error);
       }
       return response.data!.downloadUrl;
     },
-    [api, taskId],
+    [api],
   );
 
   const deleteAttachment = useCallback(
