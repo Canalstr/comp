@@ -12,8 +12,8 @@ type ProxyContextError = {
   response: NextResponse;
 };
 
-export function getProxyContext(req?: NextRequest): ProxyContextOk | ProxyContextError {
-  const headerList = req?.headers ?? headers();
+export async function getProxyContext(req?: NextRequest): Promise<ProxyContextOk | ProxyContextError> {
+  const headerList = req?.headers ?? await headers();
 
   const authHeader =
     headerList.get('authorization') ??
@@ -52,7 +52,7 @@ export async function forwardJson(
   input: Request,
   init: RequestInit & { path: string },
 ) {
-  const ctx = getProxyContext();
+  const ctx = await getProxyContext();
   if (!ctx.ok) {
     return ctx.response;
   }
