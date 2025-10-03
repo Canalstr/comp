@@ -13,7 +13,7 @@ type ProxyContextError = {
 };
 
 export function getProxyContext(req?: NextRequest): ProxyContextOk | ProxyContextError {
-  const headerList = headers();
+  const headerList = req?.headers ?? headers();
 
   const authHeader =
     headerList.get('authorization') ??
