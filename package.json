@@ -93,6 +93,7 @@
     "packages/utils"
   ],
   "dependencies": {
+    "@trigger.dev/sdk": "^4.0.4",
     "zod": "^3.25.76"
   }
 }
