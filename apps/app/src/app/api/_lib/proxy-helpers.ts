@@ -1,48 +1,60 @@
-// apps/app/src/app/api/_lib/proxy-helpers.ts
-import { headers as nextHeaders } from 'next/headers';
-import { auth } from '@/utils/auth';
+import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.COMP_API_BASE_URL!; // http://comp-api-alb-...
+type ProxyContextOk = {
+  ok: true;
+  authHeader: string;
+  orgHeader: string;
+};
 
-export async function getProxyContext() {
-  const headers = await nextHeaders();
+type ProxyContextError = {
+  ok: false;
+  response: NextResponse;
+};
 
-  const protocol = headers.get('x-forwarded-proto') ?? 'https';
-  const host = headers.get('x-forwarded-host') ?? headers.get('host')!;
-  const origin = `${protocol}://${host}`;
+export function getProxyContext(req?: NextRequest): ProxyContextOk | ProxyContextError {
+  const headerList = headers();
 
-  // 1) Mint a JWT using Better Auth's built-in token endpoint
-  const tokenResponse = await fetch(`${origin}/api/auth/token`, {
-    headers: { cookie: headers.get('cookie') ?? '' },
-    cache: 'no-store',
-  });
+  const authHeader =
+    headerList.get('authorization') ??
+    headerList.get('Authorization') ??
+    undefined;
 
-  if (!tokenResponse.ok) {
-    return { token: null, organizationId: null };
+  let orgHeader =
+    headerList.get('x-organization-id') ??
+    headerList.get('X-Organization-Id') ??
+    undefined;
+
+  if (!orgHeader && req) {
+    const url = req.nextUrl ?? new URL(req.url);
+    orgHeader =
+      url.searchParams.get('org') ??
+      url.searchParams.get('orgId') ??
+      undefined;
   }
 
-  const { token } = await tokenResponse.json();
+  if (!authHeader || !orgHeader) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: 'Missing authentication or organization context' },
+        { status: 401 },
+      ),
+    };
+  }
 
-  // 2) We still need the active organization ID
-  const session = await auth.api.getSession({ headers });
-  const organizationId = session.session?.activeOrganizationId ?? null;
-
-  return { token, organizationId, headers, origin };
+  return { ok: true, authHeader, orgHeader };
 }
+
+const API_BASE_URL = process.env.COMP_API_BASE_URL!; // http://comp-api-alb-...
 
 export async function forwardJson(
   input: Request,
   init: RequestInit & { path: string },
 ) {
-  const { token, organizationId } = await getProxyContext();
-  if (!token || !organizationId) {
-    return new Response(
-      JSON.stringify({ error: 'Missing authentication or organization context' }),
-      {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
+  const ctx = getProxyContext();
+  if (!ctx.ok) {
+    return ctx.response;
   }
 
   const url = `${API_BASE_URL}${init.path}`;
@@ -50,8 +62,8 @@ export async function forwardJson(
     ...init,
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      'X-Organization-Id': organizationId,
+      Authorization: ctx.authHeader,
+      'X-Organization-Id': ctx.orgHeader,
       ...(init.headers ?? {}),
     },
   });
