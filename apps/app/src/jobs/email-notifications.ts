@@ -4,13 +4,6 @@ import { emailNotificationSchema } from "./schemas";
 export const sendEmailNotification = schemaTask({
   id: "send-email-notification",
   schema: emailNotificationSchema,
-  timeoutInMs: 2 * 60 * 1000, // 2 minutes
-  retry: {
-    maxAttempts: 3,
-    backoff: {
-      type: "exponential",
-    },
-  },
   run: async (payload) => {
     const { to, subject, body, templateId, variables } = payload;
 

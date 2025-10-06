@@ -4,13 +4,6 @@ import { integrationResultSchema } from "./schemas";
 export const processIntegrationResults = schemaTask({
   id: "process-integration-results",
   schema: integrationResultSchema,
-  timeoutInMs: 15 * 60 * 1000, // 15 minutes for heavy processing
-  retry: {
-    maxAttempts: 5,
-    backoff: {
-      type: "exponential",
-    },
-  },
   run: async (payload) => {
     const { integration } = payload;
 
