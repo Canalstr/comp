@@ -9,13 +9,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { taskId: string; attachmentId: string } },
 ) {
-  const ctx = await getProxyContext(req);
-  if (!ctx.ok) return ctx.response;
-
-  return forwardJson({
+  return forwardJson(req, {
     path: `/v1/tasks/${params.taskId}/attachments/${params.attachmentId}`,
     method: 'DELETE',
-    authHeader: ctx.authHeader,
-    orgHeader: ctx.orgHeader,
   });
 }

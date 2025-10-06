@@ -9,17 +9,12 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { commentId: string } },
 ) {
-  const ctx = await getProxyContext(req);
-  if (!ctx.ok) return ctx.response;
-
   const body = await req.json();
 
-  return forwardJson({
+  return forwardJson(req, {
     path: `/v1/comments/${params.commentId}`,
     method: 'PUT',
     body: JSON.stringify(body),
-    authHeader: ctx.authHeader,
-    orgHeader: ctx.orgHeader,
   });
 }
 
@@ -27,13 +22,8 @@ export async function PUT(
  * DELETE /api/comments/[commentId] - Delete a comment
  */
 export async function DELETE(req: NextRequest, { params }: { params: { commentId: string } }) {
-  const ctx = await getProxyContext(req);
-  if (!ctx.ok) return ctx.response;
-
-  return forwardJson({
+  return forwardJson(req, {
     path: `/v1/comments/${params.commentId}`,
     method: 'DELETE',
-    authHeader: ctx.authHeader,
-    orgHeader: ctx.orgHeader,
   });
 }
