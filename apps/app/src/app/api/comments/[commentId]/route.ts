@@ -9,7 +9,7 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { commentId: string } },
 ) {
-  const ctx = getProxyContext(req);
+  const ctx = await getProxyContext(req);
   if (!ctx.ok) return ctx.response;
 
   const body = await req.json();
@@ -27,7 +27,7 @@ export async function PUT(
  * DELETE /api/comments/[commentId] - Delete a comment
  */
 export async function DELETE(req: NextRequest, { params }: { params: { commentId: string } }) {
-  const ctx = getProxyContext(req);
+  const ctx = await getProxyContext(req);
   if (!ctx.ok) return ctx.response;
 
   return forwardJson({

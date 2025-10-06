@@ -9,7 +9,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { taskId: string; attachmentId: string } },
 ) {
-  const ctx = getProxyContext(req);
+  const ctx = await getProxyContext(req);
   if (!ctx.ok) return ctx.response;
 
   return forwardJson({

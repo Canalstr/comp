@@ -6,7 +6,7 @@ import { forwardJson, getProxyContext } from '../_lib/proxy-helpers';
  * GET /api/comments?entityId=xxx&entityType=xxx - List comments for any entity
  */
 export async function GET(req: NextRequest) {
-  const ctx = getProxyContext(req);
+  const ctx = await getProxyContext(req);
   if (!ctx.ok) return ctx.response;
 
   const search = req.nextUrl.search ?? '';
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
  * POST /api/comments - Create a comment for any entity
  */
 export async function POST(req: NextRequest) {
-  const ctx = getProxyContext(req);
+  const ctx = await getProxyContext(req);
   if (!ctx.ok) return ctx.response;
 
   const body = await req.json();

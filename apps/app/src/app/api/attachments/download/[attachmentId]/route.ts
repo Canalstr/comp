@@ -12,7 +12,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { attachmentId: string } },
 ) {
-  const ctx = getProxyContext(req);
+  const ctx = await getProxyContext(req);
   if (!ctx.ok) return ctx.response;
 
   const upstream = await fetch(
