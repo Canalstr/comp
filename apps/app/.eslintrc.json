@@ -9,7 +9,7 @@
     "no-restricted-syntax": [
       "error",
       {
-        "selector": "CallExpression[callee.name='fetch'][arguments.0.type='Literal'][arguments.0.raw=/^['\"\\/api\\/]/]",
+        "selector": "CallExpression[callee.name='fetch'][arguments.0.type='Literal'][arguments.0.raw=/^['\"]\\/?api/]",
         "message": "Use the ApiClient instead of fetch('/api/...')."
       },
       {
