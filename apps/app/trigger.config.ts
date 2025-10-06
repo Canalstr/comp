@@ -2,8 +2,6 @@ import { defineConfig } from "@trigger.dev/sdk";
 
 export default defineConfig({
   project: "proj_wgdljccidbnmvlmnokjq",
-  jobs: ["./src/jobs/**/*.{ts,tsx}"],
-  triggers: ["./src/trigger/**/*.{ts,tsx}"],
   logLevel: "log",
   maxDuration: 300, // 5 minutes
   retries: {
@@ -16,4 +14,5 @@ export default defineConfig({
       randomize: true,
     },
   },
+  dirs: ['./src/jobs', './src/trigger'],
 });
