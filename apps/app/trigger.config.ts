@@ -1,5 +1,4 @@
 import { PrismaInstrumentation } from '@prisma/instrumentation';
-import { syncVercelEnvVars } from '@trigger.dev/build/extensions/core';
 import { puppeteer } from '@trigger.dev/build/extensions/puppeteer';
 import { defineConfig } from '@trigger.dev/sdk';
 import { prismaExtension } from './customPrismaExtension';
@@ -16,7 +15,6 @@ export default defineConfig({
         dbPackageVersion: '^1.3.0', // Version of @trycompai/db package with compiled JS
       }),
       puppeteer(),
-      syncVercelEnvVars(),
     ],
   },
   retries: {

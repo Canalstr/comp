@@ -26,10 +26,12 @@ export const regenerateRiskMitigationAction = authActionClient
       throw new Error('No active organization');
     }
 
-    await tasks.trigger<typeof generateRiskMitigation>('generate-risk-mitigation', {
+    const handle = await tasks.trigger<typeof generateRiskMitigation>('generate-risk-mitigation', {
       organizationId: session.activeOrganizationId,
       riskId,
     });
 
-    return { success: true };
+    console.log('Risk mitigation trigger handle:', handle.id);
+
+    return { success: true, jobId: handle.id };
   });

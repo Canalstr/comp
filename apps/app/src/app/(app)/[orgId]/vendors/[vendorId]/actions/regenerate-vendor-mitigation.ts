@@ -26,10 +26,12 @@ export const regenerateVendorMitigationAction = authActionClient
       throw new Error('No active organization');
     }
 
-    await tasks.trigger<typeof generateVendorMitigation>('generate-vendor-mitigation', {
+    const handle = await tasks.trigger<typeof generateVendorMitigation>('generate-vendor-mitigation', {
       organizationId: session.activeOrganizationId,
       vendorId,
     });
 
-    return { success: true };
+    console.log('Vendor mitigation trigger handle:', handle.id);
+
+    return { success: true, jobId: handle.id };
   });

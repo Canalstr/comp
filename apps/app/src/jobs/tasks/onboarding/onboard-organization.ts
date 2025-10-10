@@ -91,23 +91,27 @@ export const onboardOrganization = task({
       const vendors = await createVendors(questionsAndAnswers, payload.organizationId);
 
       // Fan-out vendor mitigations as separate jobs
-      await tasks.trigger<typeof generateVendorMitigationsForOrg>(
+      const vendorMitigationsHandle = await tasks.trigger<typeof generateVendorMitigationsForOrg>(
         'generate-vendor-mitigations-for-org',
         {
           organizationId: payload.organizationId,
         },
       );
+      
+      logger.info('Triggered vendor mitigations job', { jobId: vendorMitigationsHandle.id });
 
       // Create risks
       await createRisks(questionsAndAnswers, payload.organizationId, organization.name);
 
       // Fan-out risk mitigations as separate jobs
-      await tasks.trigger<typeof generateRiskMitigationsForOrg>(
+      const riskMitigationsHandle = await tasks.trigger<typeof generateRiskMitigationsForOrg>(
         'generate-risk-mitigations-for-org',
         {
           organizationId: payload.organizationId,
         },
       );
+      
+      logger.info('Triggered risk mitigations job', { jobId: riskMitigationsHandle.id });
 
       // Update policies
       await updateOrganizationPolicies(payload.organizationId, questionsAndAnswers, frameworks);

@@ -54,13 +54,15 @@ export const regeneratePolicyAction = authActionClient
     });
     const contextHub = contextEntries.map((c) => `${c.question}\n${c.answer}`).join('\n');
 
-    await tasks.trigger<typeof updatePolicy>('update-policy', {
+    const handle = await tasks.trigger<typeof updatePolicy>('update-policy', {
       organizationId: session.activeOrganizationId,
       policyId,
       contextHub,
       frameworks: uniqueFrameworks,
     });
 
+    console.log('Trigger handle:', handle.id); // Add this for debugging
+
     // Revalidation handled by safe-action middleware using x-pathname header
-    return { success: true };
+    return { success: true, jobId: handle.id };
   });
