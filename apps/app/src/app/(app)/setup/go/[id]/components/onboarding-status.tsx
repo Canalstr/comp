@@ -3,11 +3,12 @@
 import { CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useRun } from '@trigger.dev/react-hooks';
+import { useRun } from '@trigger.dev/react';
 import { onboardOrganization } from '@/jobs/tasks/onboarding/onboard-organization';
 
 export function OnboardingStatus({ runId }: { runId: string }) {
-  const { run, error, isLoading } = useRun<typeof onboardOrganization>(runId, {
+  const { run } = useRun(runId, {
+    task: onboardOrganization,
     refreshInterval: 1000,
   });
 
