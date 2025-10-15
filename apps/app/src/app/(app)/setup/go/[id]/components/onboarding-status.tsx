@@ -1,13 +1,14 @@
 'use client';
 
-import type { onboardOrganization } from '@/jobs/tasks/onboarding/onboard-organization';
-import { useRun } from '@trigger.dev/react-hooks';
+import type { TaskRunHandle } from '@trigger.dev/sdk';
 import { CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useRun } from '@trigger.dev/react-hooks';
+import { onboardOrganization } from '@/jobs/tasks/onboarding/onboard-organization';
 
 export function OnboardingStatus({ runId }: { runId: string }) {
-  const { run, error, isLoading } = useRun<typeof onboardOrganization>(runId, {
+  const { run, error, isLoading } = useRun<TaskRunHandle<typeof onboardOrganization>>(runId, {
     refreshInterval: 1000,
   });
 

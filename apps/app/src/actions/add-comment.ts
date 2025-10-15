@@ -59,17 +59,8 @@ export const addCommentAction = authActionClient
       });
 
       const headersList = await headers();
-      let path = headersList.get('x-pathname') || headersList.get('referer') || '';
-      path = path.replace(/\/[a-z]{2}\//, '/');
-      if (path.startsWith("'")) {
-        path = path.slice(1);
-      }
-      if (path.startsWith('"')) {
-        path = path.slice(1);
-      }
-      if (!path.startsWith('/')) {
-        path = `/${path}`;
-      }
+      const rawPath = headersList.get('x-pathname') || headersList.get('referer') || '';
+      const path = rawPath.replace(/\/[a-z]{2}\//, '/').replace(/^['"]\//, '/');
 
       revalidatePath(path);
 
