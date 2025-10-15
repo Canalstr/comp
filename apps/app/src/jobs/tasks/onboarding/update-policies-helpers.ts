@@ -1,4 +1,4 @@
-import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
 import { db, FrameworkEditorFramework, FrameworkEditorPolicyTemplate, type Policy } from '@db';
 import type { JSONContent } from '@tiptap/react';
 import { logger } from '@trigger.dev/sdk';
@@ -194,7 +194,7 @@ export async function reconcileFormatWithTemplate(
 ): Promise<{ type: 'document'; content: Record<string, unknown>[] }> {
   try {
     const { object } = await generateObject({
-      model: openai('gpt-3.5-turbo'),
+      model: anthropic('claude-3-5-sonnet-latest'),
       mode: 'json',
       system: `You are an expert policy editor.
 Given an ORIGINAL policy TipTap JSON and a DRAFT TipTap JSON, produce a FINAL TipTap JSON that:
@@ -232,7 +232,7 @@ export async function aiCheckFormatWithTemplate(
 ): Promise<{ isConforming: boolean; reasons: string[] }> {
   try {
     const { object } = await generateObject({
-      model: openai('gpt-3.5-turbo'),
+      model: anthropic('claude-3-5-sonnet-latest'),
       mode: 'json',
       system: `You are validating policy layout.
 Compare ORIGINAL vs DRAFT (TipTap JSON). Determine if DRAFT conforms to ORIGINAL format:
@@ -457,7 +457,7 @@ export async function generatePolicyContent(prompt: string): Promise<{
 }> {
   try {
     const { object } = await generateObject({
-      model: openai('gpt-3.5-turbo'),
+      model: anthropic('claude-3-5-sonnet-latest'),
       mode: 'json',
       system: `You are an expert at writing security policies. Generate content directly as TipTap JSON format.
 

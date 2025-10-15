@@ -43,7 +43,7 @@ Portal (`apps/portal`):
 
 App (`apps/app`):
 
-- **OPENAI_API_KEY**: Enables AI features that call OpenAI models.
+- **ANTHROPIC_API_KEY**: Enables AI features that call Anthropic's Claude models.
 - **UPSTASH_REDIS_REST_URL**, **UPSTASH_REDIS_REST_TOKEN**: Optional Redis (Upstash) used for rate limiting/queues/caching.
 - **NEXT_PUBLIC_POSTHOG_KEY**, **NEXT_PUBLIC_POSTHOG_HOST**: Client analytics via PostHog; leave unset to disable.
 - **NEXT_PUBLIC_GTM_ID**: Google Tag Manager container ID for client tracking.
@@ -143,7 +143,7 @@ BETTER_AUTH_URL_PORTAL=http://localhost:3002
 NEXT_PUBLIC_BETTER_AUTH_URL_PORTAL=http://localhost:3002
 
 # Optional
-# OPENAI_API_KEY=
+# ANTHROPIC_API_KEY=
 # UPSTASH_REDIS_REST_URL=
 # UPSTASH_REDIS_REST_TOKEN=
 # NEXT_PUBLIC_POSTHOG_KEY=

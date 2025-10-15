@@ -1,7 +1,7 @@
 import { tools } from '@/data/tools';
 import { env } from '@/env.mjs';
 import { auth } from '@/utils/auth';
-import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
 import { type UIMessage, convertToModelMessages, streamText } from 'ai';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -15,13 +15,13 @@ export async function GET() {
 export async function POST(req: Request) {
   console.log('[CHAT] Request received - function is running');
   
-  const openaiKey = process.env.OPENAI_API_KEY;
-  console.log('[CHAT] Direct env check - OPENAI_API_KEY exists:', !!openaiKey);
-  console.log('[CHAT] Direct env check - OPENAI_API_KEY length:', openaiKey?.length || 0);
+  const anthropicKey = env.ANTHROPIC_API_KEY;
+  console.log('[CHAT] Direct env check - ANTHROPIC_API_KEY exists:', !!anthropicKey);
+  console.log('[CHAT] Direct env check - ANTHROPIC_API_KEY length:', anthropicKey?.length || 0);
   
-  if (!openaiKey) {
+  if (!anthropicKey) {
     console.log('[CHAT] ERROR: No API key provided');
-    return NextResponse.json({ error: 'No API key provided.' }, { status: 500 });
+    return NextResponse.json({ error: 'No Anthropic API key provided.' }, { status: 500 });
   }
 
   const { messages }: { messages: UIMessage[] } = await req.json();
@@ -51,18 +51,18 @@ export async function POST(req: Request) {
 `;
 
   try {
-    console.log('[CHAT] Calling OpenAI API...');
+    console.log('[CHAT] Calling Anthropic API...');
     const result = streamText({
-      model: openai('gpt-3.5-turbo'),
+      model: anthropic('claude-3-5-sonnet-latest'),
       system: systemPrompt,
       messages: convertToModelMessages(messages),
       tools,
     });
 
-    console.log('[CHAT] OpenAI API call successful, returning response');
+    console.log('[CHAT] Anthropic API call successful, returning response');
     return result.toUIMessageStreamResponse();
   } catch (error) {
-    console.error('[CHAT] Error calling OpenAI API:', error);
+    console.error('[CHAT] Error calling Anthropic API:', error);
     return NextResponse.json({ error: 'Failed to generate response' }, { status: 500 });
   }
 }
