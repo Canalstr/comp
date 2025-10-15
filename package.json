@@ -19,6 +19,9 @@
     "@semantic-release/github": "^11.0.3",
     "@semantic-release/npm": "^12.0.1",
     "@semantic-release/release-notes-generator": "^14.0.3",
+    "@trigger.dev/build": "4.0.4",
+    "@trigger.dev/react-hooks": "4.0.4",
+    "@trigger.dev/sdk": "4.0.4",
     "@types/bun": "^1.2.15",
     "@types/d3": "^7.4.3",
     "@types/lodash": "^4.17.17",
@@ -93,7 +96,12 @@
     "packages/utils"
   ],
   "dependencies": {
-    "@trigger.dev/sdk": "^4.0.4",
     "zod": "^3.25.76"
+  },
+  "resolutions": {
+    "@trigger.dev/build": "4.0.4",
+    "@trigger.dev/react-hooks": "4.0.4",
+    "@trigger.dev/sdk": "4.0.4",
+    "@trigger.dev/*": "4.0.4"
   }
 }

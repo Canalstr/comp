@@ -167,7 +167,7 @@ export async function extractVendorsFromContext(
   questionsAndAnswers: ContextItem[],
 ): Promise<VendorData[]> {
   const { object } = await generateObject({
-    model: anthropic('claude-3-5-sonnet-latest'),
+    model: anthropic('claude-sonnet-4-20250514'),
     mode: 'json',
     schema: jsonSchema({
       type: 'object',
@@ -226,7 +226,7 @@ export async function createVendorRiskComment(
       : 'No specific policies available - use standard security policy guidance.';
 
   const riskMitigationComment = await generateText({
-    model: anthropic('claude-3-5-sonnet-latest'),
+    model: anthropic('claude-sonnet-4-20250514'),
     system: VENDOR_RISK_ASSESSMENT_PROMPT,
     prompt: `Vendor: ${vendor.name} (${vendor.category}) - ${vendor.description}. Website: ${vendor.website}.
 
@@ -351,7 +351,7 @@ export async function createRiskMitigationComment(
       : 'No specific policies available - use standard security policy guidance.';
 
   const mitigation = await generateText({
-    model: anthropic('claude-3-5-sonnet-latest'),
+    model: anthropic('claude-sonnet-4-20250514'),
     system: RISK_MITIGATION_PROMPT,
     prompt: `Risk: ${risk.title} (${risk.category} / ${risk.department})\n\nDescription:\n${risk.description}\n\nTreatment Strategy:\n${risk.treatmentStrategy}: ${risk.treatmentStrategyDescription || 'N/A'}\n\nResidual Assessment: Likelihood ${risk.likelihood}, Impact ${risk.impact}\n\nAvailable Organization Policies:\n${policiesContext}\n\nWrite a pragmatic mitigation plan with concrete steps the team can implement in the next 30-90 days.`,
   });
@@ -407,7 +407,7 @@ export async function extractRisksFromContext(
   existingRisks: { title: string }[],
 ): Promise<RiskData[]> {
   const { object } = await generateObject({
-    model: anthropic('claude-3-5-sonnet-latest'),
+    model: anthropic('claude-sonnet-4-20250514'),
     mode: 'json',
     schema: jsonSchema({
       type: 'object',

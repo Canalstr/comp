@@ -10,7 +10,7 @@ export const env = createEnv({
     AUTH_GITHUB_SECRET: z.string().optional(),
     AUTH_SECRET: z.string(),
     DATABASE_URL: z.string().min(1),
-    ANTHROPIC_API_KEY: z.string().optional(),
+    ANTHROPIC_API_KEY: z.string(),
     RESEND_API_KEY: z.string(),
     UPSTASH_REDIS_REST_URL: z.string().optional(),
     UPSTASH_REDIS_REST_TOKEN: z.string().optional(),

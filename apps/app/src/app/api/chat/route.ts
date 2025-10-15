@@ -12,6 +12,8 @@ export async function GET() {
   return NextResponse.json({ message: 'Chat API is working', timestamp: new Date().toISOString() });
 }
 
+const CLAUDE_MODEL_ID = 'claude-sonnet-4-20250514';
+
 export async function POST(req: Request) {
   console.log('[CHAT] Request received - function is running');
   
@@ -53,7 +55,7 @@ export async function POST(req: Request) {
   try {
     console.log('[CHAT] Calling Anthropic API...');
     const result = streamText({
-      model: anthropic('claude-3-5-sonnet-latest'),
+      model: anthropic(CLAUDE_MODEL_ID),
       system: systemPrompt,
       messages: convertToModelMessages(messages),
       tools,
