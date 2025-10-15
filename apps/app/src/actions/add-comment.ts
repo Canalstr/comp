@@ -60,19 +60,7 @@ export const addCommentAction = authActionClient
 
       const headersList = await headers();
       const rawPath = headersList.get('x-pathname') || headersList.get('referer') || '';
-      let path = rawPath.replace(/\/[a-z]{2}\//, '/');
-
-      if (path.startsWith('"/')) {
-        path = path.slice(1);
-      }
-
-      if (path.startsWith("'/")) {
-        path = path.slice(1);
-      }
-
-      if (!path.startsWith('/')) {
-        path = `/${path}`;
-      }
+      const path = rawPath.replace(/\/[a-z]{2}\//, '/').replace(/^['"]\//, '/');
 
       revalidatePath(path);
 
