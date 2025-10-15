@@ -59,10 +59,19 @@ export const addCommentAction = authActionClient
       });
 
       const headersList = await headers();
-      const rawPath = headersList.get('x-pathname') || headersList.get('referer') || '';
-      const path = rawPath.replace(/\/[a-z]{2}\//, '/').replace(/^['"]\//, '/');
+      const rawPath = headersList.get("x-pathname") ?? headersList.get("referer") ?? "";
 
-      revalidatePath(path);
+      let path = rawPath.replace(/\/[a-z]{2}\//, "/");
+
+      if (path.startsWith('"') || path.startsWith("'")) {
+        path = path.slice(1);
+      }
+
+      if (!path.startsWith("/")) {
+        path = `/${path}`;
+      }
+
+      revalidatePath(path || "/");
 
       return { success: true, data: comment };
     } catch (error) {
