@@ -7,8 +7,7 @@ import { useRun } from '@trigger.dev/react-hooks';
 import { onboardOrganization } from '@/jobs/tasks/onboarding/onboard-organization';
 
 export function OnboardingStatus({ runId }: { runId: string }) {
-  const { run } = useRun(runId, {
-    task: onboardOrganization,
+  const { run } = useRun<typeof onboardOrganization>(runId, {
     refreshInterval: 1000,
   });
 
