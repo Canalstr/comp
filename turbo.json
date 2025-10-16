@@ -1,52 +1,18 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": [
-    "POSTGRES_URL",
-    "POSTGRES_PRISMA_URL",
-    "SUPABASE_URL",
-    "POSTGRES_URL_NON_POOLING",
-    "SUPABASE_JWT_SECRET",
-    "POSTGRES_USER",
-    "POSTGRES_PASSWORD",
-    "POSTGRES_DATABASE",
-    "SUPABASE_SERVICE_ROLE_KEY",
-    "POSTGRES_HOST",
-    "SUPABASE_ANON_KEY",
-    "DIRECT_URL",
-    "GOOGLE_ID",
-    "GOOGLE_SECRET",
-    "NEXTAUTH_URL",
-    "EMAIL_FROM",
-    "BETTER_AUTH_SECRET",
-    "RESEND_FROM_DEFAULT",
-    "GROQ_API_KEY",
-    "KV_URL",
-    "KV_REST_API_READ_ONLY_TOKEN",
-    "REDIS_URL",
-    "KV_REST_API_TOKEN",
-    "KV_REST_API_URL",
-    "COMP_API_KEY",
-    "COMP_API_ORG_ID",
-    "COMP_API_BASE_URL",
-    "UPSTASH_REDIS_REST_TOKEN",
-    "UPSTASH_REDIS_REST_URL",
-    "RESEND_API_KEY",
-    "TRIGGER_API_KEY",
-    "DATABASE_URL",
-    "AUTH_SECRET",
-    "REVALIDATION_SECRET",
-    "ANTHROPIC_API_KEY",
-    "FIRECRAWL_API_KEY",
-    "APP_AWS_SECRET_ACCESS_KEY",
-    "APP_AWS_ACCESS_KEY_ID",
-    "APP_AWS_BUCKET_NAME",
-    "APP_AWS_REGION",
-    "TRIGGER_SECRET_KEY"
-  ],
-  "tasks": {
+  "globalDependencies": ["**/.env.*local"],
+  "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["OPENAI_API_KEY", "TRIGGER_ENVIRONMENT"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
     }
   }
 }
